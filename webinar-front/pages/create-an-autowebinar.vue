@@ -1,0 +1,3 @@
+<template>
+  <CreateWebinarForm/>
+</template>

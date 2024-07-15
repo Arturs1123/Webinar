@@ -1,0 +1,101 @@
+{
+  "BanWordsSettings": {
+    "description": "Auto imported from components/banWordsSettings.vue"
+  },
+  "CreateWebinarForm": {
+    "description": "Auto imported from components/createWebinarForm.vue"
+  },
+  "Footer": {
+    "description": "Auto imported from components/footer.vue"
+  },
+  "Header": {
+    "description": "Auto imported from components/header.vue"
+  },
+  "Room": {
+    "description": "Auto imported from components/room.vue"
+  },
+  "SidebarMenu": {
+    "description": "Auto imported from components/sidebarMenu.vue"
+  },
+  "TextareaEmojiPicker": {
+    "description": "Auto imported from components/TextareaEmojiPicker.vue"
+  },
+  "ModalsActionNotifications": {
+    "description": "Auto imported from components/Modals/actionNotifications.vue"
+  },
+  "ModalsAddEventModal": {
+    "description": "Auto imported from components/Modals/addEventModal.vue"
+  },
+  "ModalsAddInChat": {
+    "description": "Auto imported from components/Modals/addInChat.vue"
+  },
+  "ModalsBagMoneyContent": {
+    "description": "Auto imported from components/Modals/bagMoneyContent.vue"
+  },
+  "ModalsBagMoneyWait": {
+    "description": "Auto imported from components/Modals/bagMoneyWait.vue"
+  },
+  "ModalsBanWord": {
+    "description": "Auto imported from components/Modals/banWord.vue"
+  },
+  "ModalsChangeMiniature": {
+    "description": "Auto imported from components/Modals/changeMiniature.vue"
+  },
+  "ModalsClearScriptModal": {
+    "description": "Auto imported from components/Modals/clearScriptModal.vue"
+  },
+  "ModalsConfirmReset": {
+    "description": "Auto imported from components/Modals/confirmReset.vue"
+  },
+  "ModalsCreateAutowebinar": {
+    "description": "Auto imported from components/Modals/createAutowebinar.vue"
+  },
+  "ModalsCreateWebinar": {
+    "description": "Auto imported from components/Modals/createWebinar.vue"
+  },
+  "ModalsDayNightModeModal": {
+    "description": "Auto imported from components/Modals/dayNightModeModal.vue"
+  },
+  "ModalsDeleteAllMessage": {
+    "description": "Auto imported from components/Modals/deleteAllMessage.vue"
+  },
+  "ModalsDeleteRow": {
+    "description": "Auto imported from components/Modals/deleteRow.vue"
+  },
+  "ModalsDeleteWebinar": {
+    "description": "Auto imported from components/Modals/deleteWebinar.vue"
+  },
+  "ModalsImportScriptModal": {
+    "description": "Auto imported from components/Modals/importScriptModal.vue"
+  },
+  "ModalsIncorrectLink": {
+    "description": "Auto imported from components/Modals/incorrectLink.vue"
+  },
+  "ModalsLeaveRoom": {
+    "description": "Auto imported from components/Modals/leaveRoom.vue"
+  },
+  "ModalsPointMoveModal": {
+    "description": "Auto imported from components/Modals/pointMoveModal.vue"
+  },
+  "ModalsPreviewModal": {
+    "description": "Auto imported from components/Modals/previewModal.vue"
+  },
+  "ModalsPrivacyPolicy": {
+    "description": "Auto imported from components/Modals/privacyPolicy.vue"
+  },
+  "ModalsSelectIntervalModal": {
+    "description": "Auto imported from components/Modals/selectIntervalModal.vue"
+  },
+  "ModalsSendedLink": {
+    "description": "Auto imported from components/Modals/sendedLink.vue"
+  },
+  "ModalsStartTranslate": {
+    "description": "Auto imported from components/Modals/startTranslate.vue"
+  },
+  "ModalsStopStream": {
+    "description": "Auto imported from components/Modals/stopStream.vue"
+  },
+  "ModalsSupportWebinar": {
+    "description": "Auto imported from components/Modals/supportWebinar.vue"
+  }
+}
