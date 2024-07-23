@@ -16,6 +16,13 @@ class GetWebinarByIdUseCase {
 
         return webinar
     }
+
+    async getModerator(params) {
+        let moderator = null;
+        moderator = await this.webinarRepository.getModerator(params);
+
+        return moderator;
+    }
 }
 
 module.exports = GetWebinarByIdUseCase

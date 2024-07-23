@@ -6,7 +6,7 @@ class WebinarRepository {
 
     async createWebinar(webinarData){
         if (webinarData.moderators && webinarData.moderators.length) {
-            await this.insertNewModerators(webinarData.moderators, webinarData.id)
+            await this.insertNewModerators(webinarData.moderators, webinarData.id, 0)
         }
         delete webinarData.moderators
 
@@ -30,9 +30,10 @@ class WebinarRepository {
         } else {
             tbl = 'broadcast'
         }
-
+        console.log(webinarData.moderators)
         if (webinarData.moderators && webinarData.moderators.length) {
-            await this.insertNewModerators(webinarData.moderators, webinarData.id)
+            
+            await this.insertNewModerators(webinarData.moderators, webinarData.id, isAutowebinar)
         }
         delete webinarData.moderators
 
@@ -140,7 +141,6 @@ class WebinarRepository {
             FROM ${tbl}
             WHERE id = ${id}
             `)
-        console.log(res[0])
         return res[0]?.[0]
     }
 
@@ -244,17 +244,79 @@ class WebinarRepository {
         return res[0].affectedRows
     }
 
-    async insertNewModerators(moderators, webinarId) {
-        await this.mysqlDriver.execute(`
-            INSERT INTO moderate
-                (userId, webinarId)
-            VALUES
-                (${
-                    moderators
-                    .filter((moderator) => !Number.isNaN(Number(moderator))) // по телефонам и почтам после интеграции с основной базой нерби
-                    .map((moderator) => `(${moderator}, ${webinarId})`).join(', ')
-                })
-        `)
+    async insertNewModerators(moderators, webinarId, isAutowebinar) {
+        let res = null;
+        if (!isAutowebinar) {
+            res = await this.mysqlDriver.execute(`
+                SELECT *
+                FROM moderate
+                WHERE webinarId = '${webinarId}'
+            `)
+        } else {
+            res = await this.mysqlDriver.execute(`
+                SELECT *
+                FROM moderate
+                WHERE broadcastId = '${webinarId}'
+            `)
+        }
+        if (!res[0].length) {
+            if (!isAutowebinar) {
+                await this.mysqlDriver.execute(`
+                    INSERT INTO moderate
+                        (userId, webinarId)
+                    VALUES
+                        ${
+                            moderators
+                            .filter((moderator) => !Number.isNaN(Number(moderator))) // по телефонам и почтам после интеграции с основной базой нерби
+                            .map((moderator) => `(${moderator}, ${webinarId})`).join(', ')
+                        }
+                `)
+            } else {
+                await this.mysqlDriver.execute(`
+                    INSERT INTO moderate
+                        (userId, broadcastId)
+                    VALUES
+                        ${
+                            moderators
+                            .filter((moderator) => !Number.isNaN(Number(moderator))) // по телефонам и почтам после интеграции с основной базой нерби
+                            .map((moderator) => `(${moderator}, ${webinarId})`).join(', ')
+                        }
+                `)
+            }
+        } else {
+            if (!isAutowebinar) {
+                await this.mysqlDriver.execute(`
+                    UPDATE moderate
+                    SET userId = ${Number(moderators[0])}
+                    WHERE webinarId = ${webinarId};
+                `)
+            } else {
+                await this.mysqlDriver.execute(`
+                    UPDATE moderate
+                    SET userId = ${Number(moderators[0])}
+                    WHERE broadcastId = ${webinarId};
+                `)
+            }
+        }
+        
+    }
+
+    async getModerator(params) {
+        let res = null;
+        if (!params.isAutowebinar) {
+            res = await this.mysqlDriver.execute(`
+                SELECT *
+                FROM moderate
+                WHERE webinarId = '${params.id}'
+            `)
+        } else {
+            res = await this.mysqlDriver.execute(`
+                SELECT *
+                FROM moderate
+                WHERE broadcastId = '${params.id}'
+            `)
+        }
+        return res[0]
     }
 }
 

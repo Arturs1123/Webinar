@@ -65,6 +65,9 @@
   "ModalsDeleteWebinar": {
     "description": "Auto imported from components/Modals/deleteWebinar.vue"
   },
+  "ModalsDescriptionModal": {
+    "description": "Auto imported from components/Modals/descriptionModal.vue"
+  },
   "ModalsImportScriptModal": {
     "description": "Auto imported from components/Modals/importScriptModal.vue"
   },

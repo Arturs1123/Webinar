@@ -78,6 +78,26 @@ class UserRepository {
             (?, ?, ?);
         `, [name, webinarId, translationId])
     }
+
+    async getModeratorList() {
+        const res = await this.mysqlDriver.execute(`
+            SELECT *
+            FROM neearby.users
+            WHERE role != ?;
+        `, [3])
+        var data = res[0];
+        var result = [];
+        for (let i = 0; i < data.length; i++) {
+            result[i] = {
+                "id" : 0,
+                "text" : ''
+            };
+            result[i].id = data[i].id;
+            result[i].text = data[i].name
+        }
+        console.log(result)
+        return result;
+    }
 }
 
 module.exports = UserRepository

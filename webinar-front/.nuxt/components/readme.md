@@ -28,6 +28,7 @@ You can directly use them in pages and other components without the need to impo
 - `<ModalsDeleteAllMessage>` | `<modals-delete-all-message>` (components/Modals/deleteAllMessage.vue)
 - `<ModalsDeleteRow>` | `<modals-delete-row>` (components/Modals/deleteRow.vue)
 - `<ModalsDeleteWebinar>` | `<modals-delete-webinar>` (components/Modals/deleteWebinar.vue)
+- `<ModalsDescriptionModal>` | `<modals-description-modal>` (components/Modals/descriptionModal.vue)
 - `<ModalsImportScriptModal>` | `<modals-import-script-modal>` (components/Modals/importScriptModal.vue)
 - `<ModalsIncorrectLink>` | `<modals-incorrect-link>` (components/Modals/incorrectLink.vue)
 - `<ModalsLeaveRoom>` | `<modals-leave-room>` (components/Modals/leaveRoom.vue)

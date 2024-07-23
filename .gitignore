@@ -1,1 +1,10 @@
 */node_modules
+dist
+.nuxt
+.output
+.vscode
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj

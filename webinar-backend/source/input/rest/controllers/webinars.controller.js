@@ -46,6 +46,7 @@ class WebinarsController {
         this.router.get('/delete', this.deleteWebinar.bind(this))
         this.router.get('/prettyLink', this.getWebinarByPrettyLink.bind(this))
         this.router.get('/:webinarId', this.getWebinarById.bind(this))
+        this.router.post('/moderator', this.getModerator.bind(this))
     }
 
     async createWebinar(req, res, next) {
@@ -120,6 +121,16 @@ class WebinarsController {
             return res.status(200).send({
                 deletedRows: affectedRows
             })
+        } catch(err) {
+            next(err)
+        }
+    }
+
+    async getModerator(req, res, next) {
+        try {
+            const moderator = await this.getWebinarByIdUseCase.getModerator(req.body.params)
+
+            return res.status(200).send(moderator)
         } catch(err) {
             next(err)
         }

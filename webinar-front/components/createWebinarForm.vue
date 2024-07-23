@@ -123,7 +123,7 @@
                     <p class="button__title">Рекомендуемый размер: 1280x720</p>
                   </div>
                   <v-file-input
-                    style="display: none;"
+                    style=""
                     id="web_background_custom"
                     v-model="customStandardBackground"
                     @change="setCustomBackground($event, 'customStandardBackgroundUrl')" />
@@ -135,7 +135,7 @@
               <!--              </div>-->
             </div>
             <hr style="margin-top: 20px;" />
-            <div style="margin-top: 30px;" class="room__create">
+            <div style="margin-top: 30px; display: none;" class="room__create">
               <p class="room__title">Дизайнерский стиль стиль: <span class="room__subtitle">(Выберите задний фон входа в {{ this.isAutowebinar ? 'автовебинарную' : 'вебинарную' }} комнату)</span></p>
               <div class="create__fons">
                 <div class="fons__style">
@@ -312,22 +312,22 @@
               />
             </div>
             <div class="room__author">
-              <label class="label__webinar" >Дополнительная ссылка для входа в комнату:</label>
-              <input class="input__option" v-model="additionalLinkEnterRoom" type="text">
+              <!-- <label class="label__webinar" >Дополнительная ссылка для входа в комнату:</label>
+              <input class="input__option" v-model="redirectOut" type="text"> -->
               <label class="label__webinar" >Редирект при выходе со страницы входа:</label>
               <input class="input__option" v-model="redirectLeaveEnteringPage" type="text">
             </div>
           </div>
-          <hr style="margin-top: 40px;"/>
-          <div class="option__webinar">
+          <!-- <hr style="margin-top: 40px;"/> -->
+          <div class="option__webinar" style="display: none;">
             <label class="label__webinar" >Редирект по окончанию вебинара:</label>
-            <input class="input__option" v-model="redirectOut" type="text">
+            <input class="input__option" v-model="additionalLinkEnterRoom" type="text">
           </div>
           <!-- <div class="option__webinar">
             <label class="label__webinar" >Редирект при выходе из вебинарной комнаты:</label>
             <input class="input__option" v-model="redirectOut" type="text">
           </div> -->
-          <hr style="margin-top: 40px;"/>
+          <!-- <hr style="margin-top: 40px;"/> -->
         </div>
         <div class="webinar__autowebinar2"
              style="margin-top: 20px; width: 98%; margin-left: 50%; transform: translate(-50%, 0); padding: 30px"
@@ -536,6 +536,9 @@
                         <div>
                           <label class="label__webinar" >Ссылка:</label>
                           <input class="input__option" type="text" v-model="newLinkMsg">
+                          <p v-if="sendLinkError" class="red--text">
+                            Ссылка (для добавления в чат) должна начаться с http:// или https://
+                          </p>
                         </div>
                         <div class="modals__input__color">
                           <label class="label__webinar" >Цвет кнопки: </label>
@@ -583,9 +586,9 @@
                     </div>
 
                     <label class="label__webinar" >Редирект при выходе с комнаты: <span class="room__subtitle">(не больше 50 символов)</span></label>
-                    <input class="input__option" type="text">
-                    <label class="label__webinar" >Редирект по окончанию:</label>
-                    <input class="input__option" type="text">
+                    <input class="input__option" type="text" v-model="redirectLeave">
+                    <label class="label__webinar" >Редирект по окончанию вебинара:</label>
+                    <input class="input__option" type="text" v-model="redirectOut">
                   </div>
                 </div>
               </div>
@@ -608,13 +611,25 @@
                     <input class="input__option" v-model="source" type="text">
                     <div class="room__checkboxx">
                       <div class="dsada">
-                        <label class="label__webinar" >Добавить модератора:</label>
-                        <input
+                        <div class="moderator">
+                          <label class="" >Добавить модератора:</label>
+                          <span class="selected__moderator">{{ moderatorText }}</span>
+                        </div>
+                        <!-- <input
                           class="input__option"
                           type="text"
                           placeholder="ID, телефон или email пользователя"
                           v-model="moderator"
-                        >
+                        > -->
+                        <div class="select__moderator">
+                          <Select2 
+                            class="select__moderator--select2"
+                            :options="userList" 
+                            v-model="moderator"
+                            :settings="{ width: '100%' }"
+                            @select="selectModerator"
+                          />
+                        </div>
                       </div>
                       <div style="display: contents;">
                         <button class="add__titles" @click="addModerator">Добавить модератора</button>
@@ -825,8 +840,11 @@
         <div v-if="requiredFieldsError" class="required-fields-error">
           <span class="red--text">Не заполнены все обязательные поля</span>
         </div>
+        <div v-if="requiredLinkError" class="required-fields-error">
+          <span class="red--text">{{ requiredLinkErrorMessage }}</span>
+        </div>
         <div v-if="fileSizeError" class="required-fields-error">
-          <span class="red--text">File cannot be large than 10M</span>
+          <span class="red--text">File cannot be large than 100M</span>
         </div>
         <div class="header-profile-icon" :style="{'margin-top': (requiredFieldsError || fileSizeError) ? '5px' : '30px'}">
           <button class="customBtn" @click="createWebinar">Создать</button>
@@ -849,6 +867,12 @@
       :close-modal="closeChangeAvatarModal"
       v-on:save="updateMiniature"
     />
+    <descriptionModal 
+      v-if="descriptionModalOpen"
+      :text="userDescription"
+      :close-modal="closeDescriptionModal"
+      :save-modal="saveDescription"
+    />
     <!-- v-bind:profile-picture-file="userAvatar" -->
   </div>
 </template>
@@ -859,10 +883,12 @@ import CreateWebinar from "@/components/Modals/createWebinar.vue";
 import ChangeMiniature from "@/components/Modals/changeMiniature.vue";
 import CreateAutowebinar from "@/components/Modals/createAutowebinar.vue";
 import moment from "moment-timezone"
+import Select2 from 'vue3-select2-component';
+import DescriptionModal from "@/components/Modals/descriptionModal";
 
 export default {
   name: 'CreateWebinarForm',
-  components: {ChangeMiniature, DeleteWebinar, CreateWebinar, CreateAutowebinar},
+  components: {ChangeMiniature, DeleteWebinar, CreateWebinar, CreateAutowebinar, Select2, DescriptionModal},
   middleware: "authorized",
   watch: {
     viewersQuantityStart: {
@@ -889,6 +915,7 @@ export default {
   },
   data() {
     return {
+      userList: [],
       isMainStr: false,
       isAutowebinar: false,
       userId: localStorage.getItem('userId'),
@@ -910,7 +937,8 @@ export default {
       source: '',
       banWordsOn: false,
       banWords: [],
-      moderator: '',
+      moderatorText: '',
+      moderator: null,
       moderators: [],
       banWordsModal: false,
       playback: false,
@@ -956,13 +984,24 @@ export default {
       avatarFilePath: 'http://localhost:5001/storage/design_background_2.png',
       requiredFieldsError: false,
       fileSizeError: false,
+      requiredLinkError: false,
+      requiredLinkErrorMessage: '',
+      sendLinkError: false,
       blockChatBeforeStart: false,
       addLinkNotificationSound: '',
       broadcastId: 0,
+      descriptionModalOpen: false,
+      userDescription: '',
       strScriptEditor: '',
     }
   },
   async mounted() {
+    var users = await this.$axios.post(
+      `/users/getModeratorList`,
+      ).catch(e => {
+        return false
+      });
+    this.userList = users.data.data
     this.strScriptEditor = this.$store.state.strScriptEditor
     if (this.strScriptEditor == 'edit') {
       const data = this.$store.state.autowebinar
@@ -1004,6 +1043,18 @@ export default {
     this.$store.commit('setStrScriptEditor', '');
   },
   methods: {
+    selectModerator(val){
+      console.log(val)
+      this.moderator = val
+    },
+    closeDescriptionModal() {
+      this.descriptionModalOpen = false
+    },
+    saveDescription(data) {
+      console.log("modalData===>", data)
+      this.userDescription = data
+      this.descriptionModalOpen = false
+    },
     removeLink(linkForRemove) {
       this.links = this.links.filter((link) => {
         return (
@@ -1031,16 +1082,35 @@ export default {
           )
         })
       ) {
-        this.links = [
-          ...this.links,
-          {
-            nameLink: this.newLinkName,
-            msgLink: this.newLinkMsg,
-            colorLink: this.newLinkColor,
+        if (!this.newLinkMsg.includes("http://")) {
+          if (!this.newLinkMsg.includes("https://")) {
+            this.sendLinkError = true;
+          } else {
+            this.sendLinkError = false;
+            this.links = [
+              ...this.links,
+              {
+                nameLink: this.newLinkName,
+                msgLink: this.newLinkMsg,
+                colorLink: this.newLinkColor,
+              }
+            ]
+            this.newLinkName = ''
+            this.newLinkMsg = ''
           }
-        ]
-        this.newLinkName = ''
-        this.newLinkMsg = ''
+        } else {
+          this.sendLinkError = false;
+          this.links = [
+            ...this.links,
+            {
+              nameLink: this.newLinkName,
+              msgLink: this.newLinkMsg,
+              colorLink: this.newLinkColor,
+            }
+          ]
+          this.newLinkName = ''
+          this.newLinkMsg = ''
+        }
       }
     },
     chooseFiles(inputId) {
@@ -1126,6 +1196,10 @@ export default {
       if (this.fileSizeError) {
         return
       }
+
+      if (!this.isMainStr) 
+        this.userDescription = '';
+
       try {
         const webinarData = {
           userId: this.userId,
@@ -1133,6 +1207,7 @@ export default {
           backgroundIn: this.backgrounds.standard.checked,
           backgroundOut: this.backgrounds.standard.checked,
           userName: this.userName,
+          userDescription: this.userDescription,
           userAvatar: userAvatarFilename,
           userStatus: this.userStatus,
           redirectOut: this.redirectOut,
@@ -1202,6 +1277,20 @@ export default {
         }
       } catch(err) {
         console.log(err)
+        const message = err.response.data.message.split("'")
+        if (message[1] === "redirectLeaveEnteringPage") {
+          this.requiredLinkError = true
+          this.requiredLinkErrorMessage = "Ссылка (для редиректа при выходе из комнаты для входа) должна начаться с http:// или https://"
+        } else if (message[1] === "redirectLeave") {
+          this.requiredLinkError = true
+          this.requiredLinkErrorMessage = "Ссылка (для редирект при выходе с комнаты) должна начаться с http:// или https://"
+        } else if (message[1] === "redirectOut") {
+          this.requiredLinkError = true
+          this.requiredLinkErrorMessage = "Ссылка (для редирект по окончанию вебинара) должна начаться с http:// или https://"
+        } else if (message[1] === "source") {
+          this.requiredLinkError = true
+          this.requiredLinkErrorMessage = "Ссылка видео YouTube должна быть в подобном формате: https://youtube.com/watch?v={videoId}"
+        }
       }
     },
 
@@ -1294,10 +1383,14 @@ export default {
       this.createImage(file, field);
     },
     addModerator() {
-      if (this.moderator?.trim()) {
-        this.moderators.push(this.moderator)
-        this.moderator = ''
-      }
+      console.log(this.moderator)
+       if (this.moderator) {
+        this.moderators = []
+        this.moderatorText = this.moderator.text
+        this.moderators.push(this.moderator.id)
+        this.moderator = null
+       }
+        console.log(this.moderators)
     },
     playbackChecked() {
       return false
@@ -1336,8 +1429,10 @@ export default {
     toggleMainStr() {
       this.isMainStr = !this.isMainStr
       if (this.isMainStr) {
+        this.descriptionModalOpen = true
         this.userName = this.userName + '!'
       } else {
+        this.descriptionModalOpen = false
         this.userName = this.userName.replace('!', '')
       }
     }, 
@@ -1697,6 +1792,34 @@ html {
   color: #000000;
   float: left;
   margin-top: 25px;
+}
+
+.moderator {
+  display: flex;
+  align-items: end;
+  font-family: 'Inter', Arial, sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 24px;
+  color: #000000;
+  float: left;
+  margin-top: 25px;
+}
+
+.selected__moderator {
+  font-size: 18px;
+  line-height: 18px;
+  margin: 0 0 0.5rem 10px;
+}
+
+.select__moderator {
+  display: flex;
+  width: 100%
+}
+
+.select__moderator--select2 {
+  width: 100%;
 }
 
 .input__option {

@@ -123,7 +123,7 @@
                     <p class="button__title">Рекомендуемый размер: 1280x720</p>
                   </div>
                   <v-file-input
-                    style="display: none;"
+                    style=""
                     id="web_background_custom"
                     v-model="customStandardBackground"
                     @change="setCustomBackground($event, 'customStandardBackgroundUrl')" />
@@ -135,7 +135,7 @@
               <!--              </div>-->
             </div>
             <hr style="margin-top: 20px;" />
-            <div style="margin-top: 30px;" class="room__create">
+            <div style="margin-top: 30px; display: none;" class="room__create">
               <p class="room__title">Дизайнерский стиль стиль: <span class="room__subtitle">(Выберите задний фон входа в {{ this.isAutowebinar ? 'автовебинарную' : 'вебинарную' }} комнату)</span></p>
               <div class="create__fons">
                 <div class="fons__style">
@@ -304,14 +304,14 @@
 
             </div>
             <div class="room__author">
-              <label class="label__webinar" >Дополнительная ссылка для входа в комнату:</label>
-              <input class="input__option" v-model="webinarData.additionalLinkEnterRoom" type="text">
+              <!-- <label class="label__webinar" >Дополнительная ссылка для входа в комнату:</label>
+              <input class="input__option" v-model="webinarData.additionalLinkEnterRoom" type="text"> -->
               <label class="label__webinar" >Редирект при выходе со страницы входа:</label>
               <input class="input__option" v-model="webinarData.redirectLeaveEnteringPage" type="text">
             </div>
           </div>
           <hr style="margin-top: 40px;"/>
-          <div class="option__webinar">
+          <div class="option__webinar" style="display: none;">
             <label class="label__webinar" >Редирект по окончанию вебинара:</label>
             <input class="input__option" v-model="webinarData.redirectout" type="text">
           </div>
@@ -560,9 +560,9 @@
                     </div>
 
                     <label class="label__webinar" >Редирект при выходе с комнаты: <span class="room__subtitle">(не больше 50 символов)</span></label>
-                    <input class="input__option" type="text" v-model="webinarData.redirectOut">
-                    <label class="label__webinar" >Редирект по окончанию:</label>
                     <input class="input__option" type="text" v-model="webinarData.redirectLeave">
+                    <label class="label__webinar" >Редирект по окончанию вебинара:</label>
+                    <input class="input__option" type="text" v-model="webinarData.redirectOut">
                   </div>
                 </div>
               </div>
@@ -585,15 +585,27 @@
                     <input class="input__option" v-model="webinarData.source" type="text">
                     <div class="room__checkboxx">
                       <div class="dsada">
-                        <label class="label__webinar" >Добавить модератора:</label>
-                        <input
+                        <div class="moderator">
+                          <label class="" >Добавить модератора:</label>
+                          <span class="selected__moderator">{{ moderatorText }}</span>
+                        </div>
+                        <!-- <input
                           class="input__option"
                           type="text"
                           placeholder="ID, телефон или email пользователя"
                           v-model="moderator"
-                        >
+                        > -->
+                        <div class="select__moderator">
+                          <Select2 
+                            class="select__moderator--select2"
+                            :options="userList" 
+                            v-model="moderator"
+                            :settings="{ width: '100%' }"
+                            @select="selectModerator"
+                          />
+                        </div>
                       </div>
-                      <div style="display: contents;">
+                      <div style="display: contents; margin-top: 25px;">
                         <button class="add__titles" @click="addModerator">Добавить модератора</button>
                       </div>
                     </div>
@@ -820,6 +832,12 @@
       :close-modal="closeChangeAvatarModal"
       v-on:save="updateMiniature"
     />
+    <descriptionModal 
+      v-if="descriptionModalOpen"
+      :text="webinarData.userDescription"
+      :close-modal="closeDescriptionModal"
+      :save-modal="saveDescription"
+    />
   </div>
 </template>
 
@@ -828,9 +846,11 @@ import DeleteWebinar from "@/components/Modals/deleteWebinar.vue";
 import CreateWebinar from "@/components/Modals/createWebinar.vue";
 import ChangeMiniature from "@/components/Modals/changeMiniature.vue";
 import moment from "moment-timezone";
+import Select2 from 'vue3-select2-component';
+import DescriptionModal from "@/components/Modals/descriptionModal";
 export default {
   name: 'IndexPage',
-  components: {ChangeMiniature, DeleteWebinar, CreateWebinar},
+  components: {ChangeMiniature, DeleteWebinar, CreateWebinar, Select2, DescriptionModal},
   middleware: "authorized",
   watch: {
     viewersQuantityStart: {
@@ -857,6 +877,7 @@ export default {
   },
   data() {
     return {
+      userList: [],
       isMainStr: false,
       editId: 0,
       isAutowebinar: false,
@@ -874,6 +895,7 @@ export default {
         backgroundIn: '',
         backgroundOut: '',
         userName: '',
+        userDescription: '',
         userAvatar: null,
         userAvatarName: '',
         userAvatarUrl: '',
@@ -928,16 +950,26 @@ export default {
           custom: []
         },
       },
-      moderator: '',
+      moderator: null,
+      moderatorText: '',
+      moderators: [],
       requiredFieldsError: false,
       customStandardBackground: null,
       customStandardBackgroundUrl: '',
       customDesignBackground: null,
       customDesignBackgroundUrl: '',
       strScriptEditor: '',
+      descriptionModalOpen: false,
     }
   },
   async mounted() {    
+    var users = await this.$axios.post(
+      `/users/getModeratorList`,
+      ).catch(e => {
+        return false
+      });
+    this.userList = users.data.data
+
     this.isAutowebinar = this.$store.state.editWebinarType
     this.editId = this.$store.state.editWebinarId
     this.strScriptEditor = this.$store.state.strScriptEditor
@@ -957,9 +989,21 @@ export default {
           params: params
         }
       )
+      var moderator = await this.$axios.$post(
+        `/webinars/moderator`,
+        {
+          params: params
+        }
+      )
+      
+      if (moderator.length) {
+        this.moderator = this.userList[this.userList.findIndex(option => option.id === moderator[0].userId)]
+        this.moderatorText = this.moderator.text;
+      } 
+
+      console.log("moderator=====>", this.moderator)
     }
 
-    console.log("editData=======>", data);
     for (const [key, value] of Object.entries(data)) {
       if (Object.hasOwn(this.webinarData, key)) {
         if(key === 'userId') {
@@ -1115,6 +1159,16 @@ export default {
     }
   },
   methods: {
+    selectModerator(val){
+      this.moderator = val
+    },
+    closeDescriptionModal() {
+      this.descriptionModalOpen = false
+    },
+    saveDescription(data) {
+      this.webinarData.userDescription = data
+      this.descriptionModalOpen = false
+    },
     removeLink(linkForRemove) {
       this.webinarData.links = this.webinarData.links.filter((link) => {
         return (
@@ -1189,8 +1243,6 @@ export default {
     },
     async updateWebinar() {
       let userAvatarFilename = null 
-      console.log('userAvatar')
-      console.log(this.webinarData.userAvatar)
 
       if (this.webinarData.userAvatar) {
         // const existAvatar = await this.checkExistPhotoByFilename(this.userAvatarUrl.split('/').at(-1))
@@ -1198,40 +1250,54 @@ export default {
 
         // if (!existAvatar) {
           userAvatarFilename = await this.uploadPhoto(this.webinarData.userAvatar)
-          console.log('userAvatarFilename')
-          console.log(userAvatarFilename)
         // }
       }
       // const backgroundInFilename = await this.uploadPhoto(this.webinarData.backgroundIn)
-      let screensaverPhotoFilename = this.screensaverPhotoUrl?.split('/').at(-1) || null
-      if (screensaverPhotoFilename) {
-        const existScreensaverPhoto = await this.checkExistPhotoByFilename(this.screensaverPhotoUrl.split('/').at(-1))
-
-        if (!existScreensaverPhoto) {
-          console.log('sendScreensaverPhoto')
-          screensaverPhotoFilename = await this.uploadPhoto(this.screensaverPhoto)
+      let  screensaverPhotoFilename = null
+      if (this.screensaverPhotoUrl.indexOf('base64') !== -1) {
+        screensaverPhotoFilename = await this.uploadPhoto(this.screensaverPhoto)
+      } else {
+        screensaverPhotoFilename = this.screensaverPhotoUrl?.split('/').at(-1) || null
+        if (screensaverPhotoFilename) {
+          const existScreensaverPhoto = await this.checkExistPhotoByFilename(this.screensaverPhotoUrl.split('/').at(-1))
+  
+          if (!existScreensaverPhoto) {
+            console.log('sendScreensaverPhoto')
+            screensaverPhotoFilename = await this.uploadPhoto(this.screensaverPhoto)
+          }
         }
       }
 
-      let screensaverAudioFilename = this.screensaverAudioUrl?.split('/').at(-1) || null
-      if (screensaverAudioFilename) {
-        const existScreensaverAudio = await this.checkExistPhotoByFilename(this.screensaverAudioUrl.split('/').at(-1))
-
-        if (!existScreensaverAudio) {
-          console.log('sendScreensaverAudio')
-          screensaverAudioFilename = await this.uploadPhoto(this.screensaverAudio)
+      let screensaverAudioFilename = null
+      if (this.screensaverAudioUrl.indexOf('base64') !== -1) {
+        screensaverAudioFilename = await this.uploadPhoto(this.screensaverAudio)
+      } else {
+        screensaverAudioFilename = this.screensaverAudioUrl?.split('/').at(-1) || null
+        if (screensaverAudioFilename) {
+          const existScreensaverAudio = await this.checkExistPhotoByFilename(this.screensaverAudioUrl.split('/').at(-1))
+  
+          if (!existScreensaverAudio) {
+            console.log('sendScreensaverAudio')
+            screensaverAudioFilename = await this.uploadPhoto(this.screensaverAudio)
+          }
         }
       }
 
-      let customStandardBackgroundFilename = this.customStandardBackgroundUrl?.split('/').at(-1) || null
-      if (customStandardBackgroundFilename) {
-        const existCustomStandardBackgroundFilename = await this.checkExistPhotoByFilename(this.customStandardBackgroundUrl.split('/').at(-1))
-
-        if (!existCustomStandardBackgroundFilename) {
-          console.log('sendCustomStandardBackground')
-          customStandardBackgroundFilename = await this.uploadPhoto(this.customStandardBackground)
+      let customStandardBackgroundFilename = null
+      if (this.customStandardBackgroundUrl.indexOf('base64') !== -1) {
+        customStandardBackgroundFilename = await this.uploadPhoto(this.customStandardBackground)
+      } else {
+        customStandardBackgroundFilename = this.customStandardBackgroundUrl?.split('/').at(-1) || null
+        if (customStandardBackgroundFilename) {
+          const existCustomStandardBackgroundFilename = await this.checkExistPhotoByFilename(this.customStandardBackgroundUrl.split('/').at(-1))
+  
+          if (!existCustomStandardBackgroundFilename) {
+            console.log('sendCustomStandardBackground')
+            customStandardBackgroundFilename = await this.uploadPhoto(this.customStandardBackground)
+          }
         }
       }
+      // return
 
       let customDesignBackgroundFilename = this.customDesignBackgroundUrl?.split('/').at(-1) || null
       if (customDesignBackgroundFilename) {
@@ -1242,6 +1308,9 @@ export default {
           customDesignBackgroundFilename = await this.uploadPhoto(this.customDesignBackground)
         }
       }
+
+      if (!this.isMainStr) 
+        this.webinarData.userDescription = '';
 
       try {
         let dateStart = this.webinarData.dateStart
@@ -1455,10 +1524,12 @@ export default {
       this.createImage(file, field);
     },
     addModerator() {
-      if (this.moderator?.trim()) {
-        this.webinarData.moderators.push(this.moderator)
-        this.moderator = ''
-      }
+      if (this.moderator) {
+        this.moderators = []
+        this.moderatorText = this.moderator.text
+        this.moderators.push(this.moderator.id)
+        this.moderator = null
+       }
     },
     playbackChecked() {
       return false
@@ -1489,10 +1560,13 @@ export default {
     toggleMainStr() {
       this.isMainStr = !this.isMainStr
       if (this.isMainStr) {
+        this.descriptionModalOpen = true
         this.webinarData.userName = this.webinarData.userName + '!'
       } else {
+        this.descriptionModalOpen = false
         this.webinarData.userName = this.webinarData.userName.replace('!', '')
       }
+      
     }, 
     focusDateStart() {
       const inputElement = document.querySelector("#dateStart");
@@ -1850,6 +1924,34 @@ html {
   color: #000000;
   float: left;
   margin-top: 25px;
+}
+
+.moderator {
+  display: flex;
+  align-items: end;
+  font-family: 'Inter', Arial, sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 24px;
+  color: #000000;
+  float: left;
+  margin-top: 25px;
+}
+
+.selected__moderator {
+  font-size: 18px;
+  line-height: 18px;
+  margin: 0 0 0.5rem 10px;
+}
+
+.select__moderator {
+  display: flex;
+  width: 100%
+}
+
+.select__moderator--select2 {
+  width: 100%;
 }
 
 .input__option {

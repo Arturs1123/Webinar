@@ -20,6 +20,7 @@ export { default as ModalsDayNightModeModal } from '../..\\components\\Modals\\d
 export { default as ModalsDeleteAllMessage } from '../..\\components\\Modals\\deleteAllMessage.vue'
 export { default as ModalsDeleteRow } from '../..\\components\\Modals\\deleteRow.vue'
 export { default as ModalsDeleteWebinar } from '../..\\components\\Modals\\deleteWebinar.vue'
+export { default as ModalsDescriptionModal } from '../..\\components\\Modals\\descriptionModal.vue'
 export { default as ModalsImportScriptModal } from '../..\\components\\Modals\\importScriptModal.vue'
 export { default as ModalsIncorrectLink } from '../..\\components\\Modals\\incorrectLink.vue'
 export { default as ModalsLeaveRoom } from '../..\\components\\Modals\\leaveRoom.vue'

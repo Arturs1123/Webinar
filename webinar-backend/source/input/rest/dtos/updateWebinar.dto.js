@@ -7,6 +7,7 @@ module.exports = Joi.object({
     backgroundIn: Joi.string().allow(''),
     backgroundOut: Joi.string().allow(''),
     userName: Joi.string(),
+    userDescription: Joi.string().allow(null),
     userAvatar: Joi.string().allow('').allow(null),
     userStatus: Joi.string().allow(''),
     redirectOut: Joi.string().regex(/^(http:\/\/|https:\/\/)/).allow(''),

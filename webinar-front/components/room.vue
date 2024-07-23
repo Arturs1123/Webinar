@@ -1,5 +1,5 @@
 <template>
-  <div class="room-page" @click="() => {dayNightModeMenuOpen = false}" :style="{...backgroundImage}" >
+  <div class="room-page" :style="{...backgroundImage}" >
     <!-- <v-container> -->
       <div class="room-content" >
         <!-- <script async src="https://www.youtube.com/iframe_api"></script> -->
@@ -25,12 +25,12 @@
               <div class="profile__icon" @click="openSupportModal">
                 <img src="../static/svg/support.svg" alt="">
               </div>
-              <div class="profile__icon" style="cursor: default">
+              <div class="profile__icon" style="cursor: default" v-click-outside="() => {dayNightModeMenuOpen = false}">
                 <button aria-haspopup="menu" @click="dayNightModeMenuToggle($event)" style="cursor: pointer">
                   <img src="../static/svg/fluent_paint-brush-24-regular.svg" alt="">
                 </button>
                 <ul class="dropdown-content" role="menu" :style="dayNightModeMenuOpen ? 'visibility: visible' : ''">
-                  <li :style="'--delay: 1;' + dayNightModeMenuOpen ? 'left: 0' : ''">
+                  <li :style="dayNightModeMenuOpen ? 'left: 0' : ''">
                     <div class="search_filter__input">
                       <img class="day-night-mode-icon" src="../static/svg/day-mode.svg"/>
                       <span>Дневной режим</span>
@@ -192,6 +192,7 @@
               <div style="display: flex; justify-content: center; align-items: center" v-if="screensaverAudio">
                 <audio controls id="screensaverAudio" src=""></audio>
               </div>
+              <audio controls id="linkSound" style="display:none" src=""></audio>
               <div v-if="isCenterLink" class="room_action_notification__container"  @click="clickCenterLink({ type: 'clickLink', msg: centerLink.msg, })">
                 <div class="action_notification__icon">
                   <img src="../static/svg/action-click-link-icon.svg" alt="">
@@ -242,8 +243,21 @@
                     <img src="../static/svg/corona.svg" alt="">
                   </div>
                   <div class="subtitle">
-                    <p class="add" style="color: black">Ведущий: <span>{{ authorName }}</span></p>
+                    <p class="add" style="position: relative; color: black">Ведущий: 
+                      <span 
+                        @mouseover="tooltipFlag = true"
+                        @mouseleave="tooltipFlag = false"
+                        v-click-outside="tooltipClose"
+                        style="cursor: pointer;"  
+                      >
+                        {{ authorName }}
+                      </span>
+                    </p>
+                    <div class="authDescription" v-if="tooltipFlag && userDescription">
+                      {{ userDescription }}
+                    </div>
                     <p class="adds" style="color: black;margin-top: 9px;">{{ authorStatus }}</p>
+                    
                   </div>
                 </div>
               </div>
@@ -378,7 +392,7 @@
                           </p>
                           <p style="line-height: 10px; font-size: 10px; color: rgb(73,71,71)">{{ getMessageTime(item.user.timestamp) }}</p>
                         </div>
-                        <p style="width: 100%; overflow-wrap: break-word;">{{ item.msg }}</p>
+                        <p style="width: 90%; overflow-wrap: break-word;">{{ item.msg }}</p>
                       </div>
                     </div>
                     <!-- v....else....if="item?.user?.auth?.id == webinar.userId"  -->
@@ -407,7 +421,7 @@
                           </div>
                           <p style="line-height: 10px; font-size: 10px; color: rgb(73,71,71)">{{ getMessageTime(item.user.timestamp) }}</p>
                         </div>
-                        <p v-if="!isLink(item.msg)" style="width: 100%; overflow-wrap: break-word;">{{ item.msg }}</p>
+                        <p v-if="!isLink(item.msg)" style="width: 90%; overflow-wrap: break-word;">{{ item.msg }}</p>
                         <div v-else >
                           <p>{{ item.user.name }}</p>
                           <p :style="{ 'display': 'inline-block', 'padding-left': '5px', 'padding-right': '5px', 'border-radius': '3px', 'overflow-wrap': 'break-word', 'background-color': item.user.color }">
@@ -425,7 +439,7 @@
                           <p class="author__name" style="font-weight: 900; display: inline-block; margin-right: 10px">{{ item.user.auth.login }}</p>
                           <p style="line-height: 10px; font-size: 10px; color: rgb(73,71,71)">{{ getMessageTime(item.user.timestamp) }}</p>
                         </div>
-                        <p style="width: 100%; overflow-wrap: break-word;">{{ item.msg }}</p>
+                        <p style="width: 90%; overflow-wrap: break-word;">{{ item.msg }}</p>
                       </div>
                     </div>
                   </div>
@@ -664,7 +678,7 @@ export default {
     window.onYouTubeIframeAPIReady = function () {
       this.readyYT = true
     }.bind(this)
-
+    console.log("mount", this.readyYT)
     const routePath = this.$route.path
     isAutowebinar = (routePath.includes('/a/') ? 1 : 0)
     const isSecret = (routePath.includes('/w/secret/') || routePath.includes('/a/secret/') ? 1 : 0)
@@ -691,12 +705,14 @@ export default {
         this.webinarData = data.data
         this.webinarId = data.data.id
         this.url = data.data.url
+        this.userDescription = data.data.userDescription
         // this.authorStatus = data.data.userStatus
         // this.authorName = data.data.userName
         // this.title = data.data.title
         this.screensaverPhoto = data.data.screensaverPhoto
         this.screensaverAudio = data.data.screensaverAudio
         this.screensaverVideo = data.data.screensaverVideo
+        console.log("mount++++", this.screensaverAudio)
         const newData = {
           roomTitle: data.data.title,
           authorStatus: data.data.userStatus,
@@ -738,7 +754,7 @@ export default {
         this.background = this.$config.staticURL + '/' + data.data.backgroundIn
         this.authorAvatar = this.$config.staticURL + '/' + data.data.userAvatar
         this.source = data.data.source
-        this.redirectOut = (data.data.redirectOut == "") ? "https://nearby.pro" : data.data.redirectOut
+        this.redirectOut = (data.data.redirectOut == "") ? "https://neearby.pro" : data.data.redirectOut
 
         const banWords = data.data.banWords?.split('; ')
 
@@ -786,7 +802,14 @@ export default {
         this.playback = !this.isAutoWebinar ? data.data.playback : this.playback
         return data.data
       })
-    
+    console.log("webinarData=====>", this.webinarData)
+    this.webinarData.duration = 3509483;
+    if (isAutowebinar && this.webinarData.viewersQuantityStart) {
+      this.chatNumber = this.webinarData.viewersQuantityStart;
+      console.log(this.chatNumber)
+      
+    } 
+
     this.$nextTick(() => {
       const chating = document.getElementById("chating")
       chating.scrollTop = chating.scrollHeight;
@@ -902,12 +925,15 @@ export default {
           document.getElementById("black").style.backgroundImage = "url("+this.$config.staticURL + "/" + this.screensaverPhoto+")"
           
         } else if (this.screensaverAudio) {
+          console.log("audio====>", this.screensaverAudio)
           // this.newAudio = new Audio(this.$config.staticURL + '/' + this.screensaverAudio)
           // this.newAudio.loop = true;
           // this.newAudio.play()
           document.getElementById("black").style.backgroundImage = "url("+this.$config.staticURL + "/defaultSplashImage.jpg)"
           document.getElementById("screensaverAudio").src = this.$config.staticURL + "/" + this.screensaverAudio
-
+          document.getElementById("screensaverAudio").play()
+          document.getElementById("screensaverAudio").addEventListener('play', () => this.audioPlayerStatus = true);
+          document.getElementById("screensaverAudio").addEventListener('pause', () => this.audioPlayerStatus = false);
         } else if (this.screensaverVideo) {
           const urlContext = this.screensaverVideo.split("watch?v=")
           const videoId = urlContext[urlContext.length - 1]
@@ -959,6 +985,7 @@ export default {
         } else {
           document.getElementById("black").style.backgroundImage = "url("+this.$config.staticURL + "/defaultSplashImage.jpg)"
         }
+        
 
         const date = new Date()
         const dbDate = new Date(this.dateStart)
@@ -1126,7 +1153,9 @@ export default {
                   
 
       if (command.action == "updateInfo") {
-        this.chatNumber = command.data.users
+        if (!this.isAutoWebinar) {
+          this.chatNumber = command.data.users
+        }
       }
 
       if (command.action == "message") {
@@ -1141,7 +1170,8 @@ export default {
           
           if (command.data.user.color && command.data.user.color.includes('#') 
               && command.data.msg && this.isLink(command.data.msg) ) {
-            
+            document.getElementById("linkSound").src = this.$config.staticURL + "/linkSound.mp3";
+            document.getElementById("linkSound").play();
             this.isCenterLink = true
             console.log(command.data.user)
             this.centerLink = {
@@ -1167,6 +1197,7 @@ export default {
             })
           }
         } else if (command.data.user.type === 'link') {
+          console.log("link=============>");
           this.$nextTick(() => {
             const chatingLinks = document.querySelector(".chating_links")
             if (chatingLinks) {
@@ -1372,6 +1403,8 @@ export default {
   },
   data() {
     return {
+      audioPlayerStatus: false,
+      tooltipFlag: false,
       webinarData: '',
       isAutoWebinar: 0,
       playTime: 0,
@@ -1409,7 +1442,7 @@ export default {
       dateStart: "",
       playbackFrequency: "",
       webinar: {},
-      redirectOut: "https://nearby.com",
+      redirectOut: "https://neearby.pro",
       player: null,
       screensaverVideoPlayer: null,
       status: 0,
@@ -1419,6 +1452,7 @@ export default {
       // authorStatus: "",
       authorAvatar: "",
       // title: "",
+      userDescription: '',
       readyYT: false,
       outRedirectUrl: null,
       bagMoneyWaitModalOpen: false,
@@ -1457,6 +1491,9 @@ export default {
     }
   },
   methods: {
+    tooltipClose() {
+      this.tooltipFlag = false
+    },
     async enableWebinar(webinarId, status, isAutowebinar) {
       if (!this.isAutoWebinar) {
         if (this.isAdmin || this.isModer) {
@@ -1483,7 +1520,6 @@ export default {
     async updateWebinar() {
       console.log(this.dateStart)
       this.dateStart = new Date().toISOString().slice(0, 16)
-      this.dateStartPole = "В эфире"
       const res = await this.$axios.patch(
         `/webinars`
         ,
@@ -1822,9 +1858,6 @@ export default {
       }))
       // console.log(document.querySelector(".chating_links"))
       this.$forceUpdate()
-      if (this.notificationSoundAddLink) {
-        this.playNotificationSoundAddLink(`${this.$config.staticURL}/notification_sound_add_link.mp3`)
-      }
     },
     editLink(linkData) {
       const {
@@ -1945,24 +1978,28 @@ export default {
     },
     async start({ preview = false } = {}) {
       console.log("start")
+      this.dateStartPole = "В эфире"
       if (this.screensaverAudio) {
-        this.newAudio.pause()
+        if (this.audioPlayerStatus) {
+          document.getElementById("screensaverAudio").pause()
+        }
       } else if (this.screensaverVideo) {
         this.screensaverVideo.pauseVideo()
       }
       const urlContext = this.source.split("watch?v=")
       const videoId = urlContext[urlContext.length - 1]
-
-      if(!this.readyYT){
-        await new Promise((_r) => {
-          const intval = setInterval(()=> {
-            if(this.readyYT){
-              _r()
-              clearInterval(intval)
-            }
-          }, 1000)
-        })
-      }
+      console.log(this.readyYT)
+      // if(!this.readyYT){
+        
+      //   await new Promise((_r) => {
+      //     const intval = setInterval(()=> {
+      //       if(this.readyYT){
+      //         _r()
+      //         clearInterval(intval)
+      //       }
+      //     }, 1000)
+      //   })
+      // }
       
       let playTime = this.playTime ? this.playTime : moment().tz('Europe/Moscow')
       const date = new Date()
@@ -1982,12 +2019,12 @@ export default {
         diffTime = parseInt(curTime.diff(playTime) / 1000)
       }
 
-      if (this.player) {
-        this.player.loadVideoById({
-          'videoId': videoId,
-          'startSeconds': diffTime,
-        })
-      }
+      // if (this.player) {
+      //   this.player.loadVideoById({
+      //     'videoId': videoId,
+      //     'startSeconds': diffTime,
+      //   })
+      // }
 
       // this.player = new window.YT.Player('ytplayer', {
       //   height: '100%',
@@ -2090,6 +2127,38 @@ export default {
           document.getElementById("player__errorText").textContent = 'Встраивание данной трансляции запрещено по требованиям YouTube';
         }
       }
+      if (this.isAutoWebinar && this.webinarData.viewersQuantityStart) {
+        var firstTimeout = 0;
+        var duration = this.duration ? this.duration : 60 * 60 * 1000;
+        
+        firstTimeout = Math.floor((duration / 2) / Math.abs(this.webinarData.viewersQuantityMiddle - this.webinarData.viewersQuantityStart))
+        const int = setInterval(() => {
+          if (this.webinarData.viewersQuantityMiddle > this.webinarData.viewersQuantityStart)
+            this.chatNumber = this.chatNumber + 1;
+          else 
+            this.chatNumber = this.chatNumber - 1;
+          if (this.chatNumber == this.webinarData.viewersQuantityMiddle) {
+            console.log("success")
+            clearInterval(int)
+          }
+            
+        }, firstTimeout);
+
+        setTimeout(() => {
+          var secondTimeout = firstTimeout = Math.floor((duration / 2) / Math.abs(this.webinarData.viewersQuantityEnd - this.webinarData.viewersQuantityMiddle))
+          const interval = setInterval(() => {
+            if (this.webinarData.viewersQuantityEnd > this.webinarData.viewersQuantityMiddle)
+              this.chatNumber = this.chatNumber + 1;
+            else 
+              this.chatNumber = this.chatNumber - 1;
+            if (this.chatNumber == this.webinarData.viewersQuantityEnd) {
+              console.log("second success")
+              clearInterval(interval)
+            }
+          }, secondTimeout);
+        }, duration / 2);
+      }
+      
     },
     async leave() {
       if (this.isAdmin || this.isModer) {
@@ -2360,6 +2429,17 @@ export default {
 </script>
 
 <style scoped>
+
+.authDescription {
+  position: absolute;
+  z-index: 999;
+  padding: 10px;
+  background-color: white;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.7);
+  color: black;
+  border-radius: 10px;
+}
+
 .guest-color-black {
   color: #000000;
 }
@@ -2385,6 +2465,7 @@ export default {
 
 .room-parent {
   width: 100%;
+  height: 90vh;
   padding: 20px 50px 0 30px;
 }
 
@@ -2401,9 +2482,11 @@ export default {
   display: none;
 }
 .room-wrapper {
-  display: grid; 
+  /* display: grid; 
   grid-template-columns: 2fr 1fr; 
-  grid-column-gap: 20px; 
+  grid-column-gap: 20px;  */
+  display: flex;
+  gap: 20px;
   padding: 10px; 
   height: 100%;
   /* height: 65vh; */
@@ -2413,6 +2496,7 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  width: 67%;
   position: relative;
   overflow-y: auto;
 }
@@ -2885,7 +2969,7 @@ span {
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
-  height: 65vh;
+  height: 69vh;
   position: relative;
 }
 
@@ -2974,13 +3058,12 @@ span {
   .main__webinar__videos > img {
     width: 100%;
   }
-}
 
-@media screen and (max-width: 1440px) {
   .webinar__chat__chat {
-    height: 56vh;
+    height: 60vh;
   }
 }
+
 
 @media screen and (max-width: 1100px) {
   .room_action_notification__container {
@@ -3003,6 +3086,10 @@ span {
   .container {
     max-width: 100%;
     width: 100%;
+  }
+
+  .webinar__chat__chat {
+    height: 60vh;
   }
 }
 
@@ -3109,9 +3196,15 @@ span {
 
   .room {
     /* height: 400px;  */
+    width: 100%;
+  }
+
+  .chat {
+    width: 100% !important;
   }
 
   .room-parent {
+    height: auto;
     padding: 15px 0;
   }
 
@@ -3129,7 +3222,7 @@ span {
   }
 
   .webinar__chat__chat {
-    height: 65vh;
+    height: 60vh;
   }
 }
 
@@ -3425,8 +3518,9 @@ input {
 }
 
 .moder_highlight {
-  background-color: rgba(0, 0, 0, 0);
+  background-color: rgba(255, 255, 255, 1);
   border: 1px solid #261810;
+  color: black !important;
 }
 
 .moder_delete {
@@ -3453,6 +3547,7 @@ input {
   position: relative;
   display: flex;
   flex-direction: column;
+  width: 33%;
   height: 100%;
   gap: 10px;
 }

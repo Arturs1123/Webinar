@@ -17,7 +17,7 @@
 <!--          <img :src="background" alt="">-->
           <div v-if="!isLoad" class="sekret__form">
             <div v-if="!isNotFound" class="form__sign" action="">
-              <div class="form__buttons">
+              <div class="form__buttons" style="display: none;">
                 <button style="border-radius: 7px;" class="form__button__sign" @click="">Вход на Мастер-Класс</button>
               </div>
               <div class="sektet__forms">
@@ -425,7 +425,7 @@ export default {
 }
 
 .form__button__title {
-  font-family: 'Inter', Arial, sans-serif;
+  font-family: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-style: normal;
   font-weight: 400;
   font-size: 10px;
@@ -435,7 +435,7 @@ export default {
 }
 
 .sekret__title {
-  font-family: 'Inter', Arial, sans-serif;
+  font-family: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-style: normal;
   font-weight: 500;
   font-size: 18px;
@@ -447,7 +447,7 @@ export default {
 }
 
 .author__title {
-  font-family: 'Inter', Arial, sans-serif;
+  font-family: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-style: normal;
   font-weight: 400;
   font-size: 16px;
@@ -456,7 +456,7 @@ export default {
 }
 
 .author__name {
-  font-family: 'Inter', Arial, sans-serif;
+  font-family: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-style: normal;
   font-weight: 400;
   font-size: 18px;
@@ -465,7 +465,7 @@ export default {
 }
 
 .author__name > span {
-  font-family: 'Inter', Arial, sans-serif;
+  font-family: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-style: normal;
   font-weight: 400;
   font-size: 14px;
@@ -474,7 +474,7 @@ export default {
 }
 
 .form__date {
-  font-family: 'Inter', Arial, sans-serif;
+  font-family: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-style: normal;
   font-weight: 400;
   font-size: 14px;
@@ -483,7 +483,7 @@ export default {
 }
 
 .form__date__number {
-  font-family: 'Inter', Arial, sans-serif;
+  font-family: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-style: normal;
   font-weight: 400;
   font-size: 18px;
@@ -492,7 +492,7 @@ export default {
 }
 
 .label__name {
-  font-family: 'Inter', Arial, sans-serif;
+  font-family: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-style: normal;
   font-weight: 400;
   font-size: 14px;

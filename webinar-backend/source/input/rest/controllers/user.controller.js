@@ -34,6 +34,10 @@ class UserController {
             '/ghostes',
             this.createGhoste.bind(this)
         )
+        this.router.post(
+            '/getModeratorList',
+            this.getModeratorList.bind(this)
+        )
     }
 
     async changeHideDates(req, res, next) {
@@ -75,7 +79,19 @@ class UserController {
         try {
             await this.ghosteUseCase.createGhoste(req.body)
 
-            return res.status(201).end()
+            return res.status(201).send()
+        } catch(err) {
+            next(err)
+        }
+    }
+
+    async getModeratorList(req, res, next) {
+        try {
+            const result = await this.ghosteUseCase.getModeratorList()
+
+            return res.status(200).send({
+                data: result,
+            })
         } catch(err) {
             next(err)
         }

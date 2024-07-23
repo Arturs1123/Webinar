@@ -52,7 +52,7 @@
             <div>{{word}}</div>
             <div
               style="margin-left: auto; cursor: pointer"
-              @click="deleteBanWord"
+              @click="deleteBanWord(word)"
             >
               <img src="../static/svg/radix-icons_cross-2.svg" alt=""/>
             </div>
@@ -93,8 +93,15 @@ export default {
         }
       }
     },
-    deleteBanWord() {
-      this.banWords = this.banWords.filter((word) => word !== this.banWord)
+    deleteBanWord(word) {
+      console.log(this.banWords);
+      let index = this.banWords.indexOf(word); // Find the index of element 3
+
+      if (index !== -1) {
+        this.banWords.splice(index, 1); // Remove the element at the found index
+      }
+      // this.banWords = this.banWords.filter((word) => word !== this.banWord)
+      console.log(this.banWords);
     }
   }
 }

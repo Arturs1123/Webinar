@@ -26,6 +26,10 @@ class GhosteUseCase {
             translationId
         })
     }
+
+    async getModeratorList() {
+        return await this.userRepository.getModeratorList()
+    }
 }
 
 module.exports = GhosteUseCase
