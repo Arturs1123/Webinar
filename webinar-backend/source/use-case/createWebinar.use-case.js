@@ -14,6 +14,7 @@ class CreateWebinarUseCase {
         let { moderators, ...webinar } = webinarData
         const isAutowebinar = webinar.isAutowebinar
         webinar.dateStart = webinar.dateStart.replace('T', ' ')
+        webinar.dateCreated = webinar.dateCreated.replace('T', ' ')
         delete webinar.isAutowebinar
         if (isAutowebinar == 1) {
             webinar.status = 'Включен'

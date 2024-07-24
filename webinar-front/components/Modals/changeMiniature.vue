@@ -193,6 +193,7 @@ export default {
       .change-miniature {
         width: 50%;
         margin-right: 14%;
+        max-height: 250px;
       }
 
       .big {

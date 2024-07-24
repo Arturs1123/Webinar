@@ -7,7 +7,7 @@ module.exports = Joi.object({
     backgroundIn: Joi.string().allow(''),
     backgroundOut: Joi.string().allow(''),
     userName: Joi.string(),
-    userDescription: Joi.string().allow(null),
+    userDescription: Joi.string().allow('').allow(null),
     userAvatar: Joi.string().allow('').allow(null),
     userStatus: Joi.string().allow(''),
     redirectOut: Joi.string().regex(/^(http:\/\/|https:\/\/)/).allow(''),
@@ -37,4 +37,5 @@ module.exports = Joi.object({
     screensaverVideo: Joi.string().allow('').allow(null),
     autowebinarId: Joi.valid(0, 1).allow(null),
     isAutowebinar: Joi.valid(0, 1).allow(null),
+    dateCreated: Joi.string(),
 }).label('UpdateWebinarDto')

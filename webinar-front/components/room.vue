@@ -157,12 +157,19 @@
                 <div class="black-box" id="black" >
                   <div class="black-content">
                     <div id="screensaverVideo"></div>
+                    <div id="screen__overlay">
+                      <div id="screen__header">
+                        <div id="screen__errorText"></div>
+                      </div>
+                      <div id="screen__footer"></div>
+                    </div>
                     <!-- <video
                       id="screensaverVideo"
                       src=""
                       loop
                       playsinline
                     ></video> -->
+                    <div style="width: 100%; height: 100%; position: absolute; top: 0px; left: 0px; background: transparent;"></div> 
                     <div class="startPole" v-if="dateStartPole != ''">
                       <v-icon aria-label="My Account" role="img" aria-hidden="false">
                         mdi-clock-time-nine-outline
@@ -197,11 +204,11 @@
                 <div class="action_notification__icon">
                   <img src="../static/svg/action-click-link-icon.svg" alt="">
                 </div>
-                <div style="margin-right: 20px">
+                <div style="width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px;">
                   <div>
-                  <span class="action_notification__name">
-                    {{ cutString(centerLink.username, 25) }}
-                  </span>
+                    <span class="action_notification__name">
+                      {{ cutString(centerLink.username, 25) }}
+                    </span>
                   </div>
                   <div class="action_notification__msg_container">
                     <span class="action_notification__msg" :style="{'background-color': centerLink.color}">
@@ -941,7 +948,6 @@ export default {
             height: '100%',
             width: '100%',
             cc_load_policy: 1,
-            loop: 1,
             playerVars: {
               playsinline: 1,
               enablejsapi: 1,
@@ -957,12 +963,18 @@ export default {
             videoId: videoId,
             events: {
               'onReady': onPlayerReady,
+              'onStateChange': onPlayerStateChange,
+              'ended': function() {
+                console.log("end")
+                document.getElementById('screensaverVideo').style.display = 'none';
+              },
               'onError': onPlayerError
             }
           });
 
           function onPlayerReady(event) {
             console.log("event", event)
+            document.getElementById("screen__overlay").style.display = "block"
             // if (this.isAdmin || this.isModer) {
             //   this.socket.send(JSON.stringify({
             //     action: "setStartTime",
@@ -976,10 +988,27 @@ export default {
             event.target.playVideo();
           }
 
+          function onPlayerStateChange(event) {
+            console.log(event)
+            var containerWidth = document.getElementById('screensaverVideo').clientWidth;
+            var containerHeight = document.getElementById('screensaverVideo').clientHeight;
+
+            // // Set the player's size to match the parent container
+            event.target.setSize(containerWidth, containerHeight);
+            if (event.data == YT.PlayerState.PLAYING) {
+              setTimeout(() => {
+                document.getElementById("screen__overlay").style.display = "none";
+              }, 2000)
+            }
+            if (event.data === 0) {
+              document.getElementById('screensaverVideo').style.display = 'none';
+            }
+          }
+
           function onPlayerError(event) {
             console.log("youtube error========>", event.data)
             if (event.data === 150) {
-              document.getElementById("player__errorText").textContent = 'Встраивание данной трансляции запрещено по требованиям YouTube';
+              document.getElementById("screen__errorText").textContent = 'Встраивание данной трансляции запрещено по требованиям YouTube';
             }
           }
         } else {
@@ -1002,7 +1031,7 @@ export default {
 
         if (tempDiff < 0) {
           if (!this.isAutoWebinar) {
-            this.enableWebinar(this.webinarId, 'Включен', this.isAutoWebinar)
+            // this.enableWebinar(this.webinarId, 'Включен', this.isAutoWebinar)
             // this.socket.send(JSON.stringify({
             //   action: "startStream",
             //   data: {
@@ -1011,11 +1040,13 @@ export default {
             //     playTime: moment().tz('Europe/Moscow'),
             //   }
             // }))
-            if (this.isAdmin || this.isModer ) {
-              this.dateStartPole = " "
+            if (this.status == 'Включен') {
+              this.playTime = this.dateStart
+              this.start()
             } else {
               this.dateStartPole = "Ожидание начала эфира от ведущего"
             }
+            
           } else {
             let temp = 0;
             if (this.playbackFrequency == "1min") 
@@ -1984,7 +2015,7 @@ export default {
           document.getElementById("screensaverAudio").pause()
         }
       } else if (this.screensaverVideo) {
-        this.screensaverVideo.pauseVideo()
+        this.screensaverVideoPlayer.pauseVideo()
       }
       const urlContext = this.source.split("watch?v=")
       const videoId = urlContext[urlContext.length - 1]
@@ -2011,7 +2042,7 @@ export default {
       const now = new Date(utc + 180 * 60000)
       const playTimeTemp = new Date(dbUtc + 180 * 6000)
 
-      console.log("now", now)
+      console.log("playTime", playTime)
 
       const curTime = moment().tz('Europe/Moscow')
       let diffTime = 0
@@ -2054,35 +2085,33 @@ export default {
       //   }
       // });
 
-      // window.onYouTubeIframeAPIReady = function() {
-        this.player = new YT.Player('ytplayer', {
-          height: '100%',
-          width: '100%',
+      this.player = new YT.Player('ytplayer', {
+        height: '100%',
+        width: '100%',
+        cc_load_policy: 1,
+        playerVars: {
+          playsinline: 1,
+          enablejsapi: 1,
+          origin: window.location.href,
+          autoplay: 1,
+          mute: 0,
+          controls: 0,
           cc_load_policy: 1,
-          playerVars: {
-            playsinline: 1,
-            enablejsapi: 1,
-            origin: window.location.href,
-            autoplay: 1,
-            mute: 0,
-            controls: 0,
-            cc_load_policy: 1,
-            rel: 0,
-            iv_load_policy: 3, 
-            vq: 'hd1080',
+          rel: 0,
+          iv_load_policy: 3, 
+          vq: 'hd1080',
+        },
+        videoId: videoId,
+        events: {
+          'onReady': onPlayerReady,
+          'onStateChange': onPlayerStateChange,
+          'ended': function() {
+            console.log("end")
+            document.getElementById('ytplayer').style.display = 'none';
           },
-          videoId: videoId,
-          events: {
-            'onReady': onPlayerReady,
-            'onStateChange': onPlayerStateChange,
-            'ended': function() {
-              console.log("end")
-              document.getElementById('ytplayer').style.display = 'none';
-            },
-            'onError': onPlayerError
-          }
-        });
-      // }
+          'onError': onPlayerError
+        }
+      });
 
       function onPlayerReady(event) {
         console.log("event", event)
@@ -2725,6 +2754,7 @@ p {
 }
 
 .startPole {
+  position: absolute;
   display: flex;
   align-items: center;
   height: 35px;
@@ -3594,6 +3624,38 @@ input {
 }
 
 #player__footer {
+  width: 100%;
+  height: 48%;
+  background-image: linear-gradient(to top, white, transparent);
+}
+
+#screen__overlay {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: lightgray;
+}
+
+#screen__header {
+  width: 100%;
+  height: 52%;
+  background-image: linear-gradient(to bottom, white, transparent);
+}
+
+#screen__errorText {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: end;
+  font-size: 22px;
+  color: black;
+  z-index: 999;
+}
+
+#screen__footer {
   width: 100%;
   height: 48%;
   background-image: linear-gradient(to top, white, transparent);

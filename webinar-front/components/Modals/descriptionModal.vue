@@ -13,11 +13,11 @@
 					variant="filled"
 					auto-grow
 				></v-textarea>
-				<div class="btnGroup">
-					<button @click="save" variant="outline-primary" class="btn btnSave">Сохранить</button>
-					<button @click="closeModal" variant="outline-secondary" class="btn btnCancel">Отмена</button>
-        </div>
 			</div>
+      <div class="btnGroup">
+        <button @click="save" variant="outline-primary" class="btn btnSave">Сохранить</button>
+        <button @click="closeModal" variant="outline-secondary" class="btn btnCancel">Отмена</button>
+      </div>
 		</div>
 	</div>
 </template>
@@ -53,13 +53,16 @@
   <style lang="scss" scoped>
   .description {
 		width: 100%;
-		padding: 15px 20px;
-    margin: 25px;
+    height: auto;
+    max-height: 450px;
+		padding: 15px 20px 5px;
+    // margin: 25px;
     color: #000;
     font-size: 16px;
     font-weight: 400;
     display: flex;
     flex-direction: column;
+    overflow-y: auto;
   }
   .modal_window {
     position: fixed;
@@ -112,7 +115,8 @@
   }
 
   .btnGroup {
-    position: relative;
+    width: 100%;
+    padding: 10px 20px;
     display: -ms-inline-flexbox;
     display: inline-flex;
     vertical-align: middle;

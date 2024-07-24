@@ -3,19 +3,22 @@
     "name": "create",
     "path": "/create",
     "component": "E:\\\\Work\\\\webinar\\\\Webinar.20240605\\\\webinar-front\\\\pages\\\\create.vue",
-    "chunkName": "pages/create"
+    "chunkName": "pages/create",
+    "_name": "_d2d64d22"
   },
   {
     "name": "create-a-webinar",
     "path": "/create-a-webinar",
     "component": "E:\\\\Work\\\\webinar\\\\Webinar.20240605\\\\webinar-front\\\\pages\\\\create-a-webinar.vue",
-    "chunkName": "pages/create-a-webinar"
+    "chunkName": "pages/create-a-webinar",
+    "_name": "_4dc7dac0"
   },
   {
     "name": "create-an-autowebinar",
     "path": "/create-an-autowebinar",
     "component": "E:\\\\Work\\\\webinar\\\\Webinar.20240605\\\\webinar-front\\\\pages\\\\create-an-autowebinar.vue",
-    "chunkName": "pages/create-an-autowebinar"
+    "chunkName": "pages/create-an-autowebinar",
+    "_name": "_18c9d8ee"
   },
   {
     "name": "create-an-autowebinar-script-editor",
@@ -27,79 +30,93 @@
         "name": "create-an-autowebinar-script-editor-id",
         "path": ":id?",
         "component": "E:\\\\Work\\\\webinar\\\\Webinar.20240605\\\\webinar-front\\\\pages\\\\create-an-autowebinar-script-editor\\\\_id.vue",
-        "chunkName": "pages/create-an-autowebinar-script-editor/_id"
+        "chunkName": "pages/create-an-autowebinar-script-editor/_id",
+        "_name": "_5fd3c042"
       }
-    ]
+    ],
+    "_name": "_a3b78b2a"
   },
   {
     "name": "login",
     "path": "/login",
     "component": "E:\\\\Work\\\\webinar\\\\Webinar.20240605\\\\webinar-front\\\\pages\\\\login.vue",
-    "chunkName": "pages/login"
+    "chunkName": "pages/login",
+    "_name": "_2811fa46"
   },
   {
     "name": "preview",
     "path": "/preview",
     "component": "E:\\\\Work\\\\webinar\\\\Webinar.20240605\\\\webinar-front\\\\pages\\\\preview.vue",
-    "chunkName": "pages/preview"
+    "chunkName": "pages/preview",
+    "_name": "_0f1b89e5"
   },
   {
     "name": "test",
     "path": "/test",
     "component": "E:\\\\Work\\\\webinar\\\\Webinar.20240605\\\\webinar-front\\\\pages\\\\test.vue",
-    "chunkName": "pages/test"
+    "chunkName": "pages/test",
+    "_name": "_33cafcc5"
   },
   {
     "name": "webinar-autowebinar",
     "path": "/webinar-autowebinar",
     "component": "E:\\\\Work\\\\webinar\\\\Webinar.20240605\\\\webinar-front\\\\pages\\\\webinar-autowebinar.vue",
-    "chunkName": "pages/webinar-autowebinar"
+    "chunkName": "pages/webinar-autowebinar",
+    "_name": "_6944a8d6"
   },
   {
     "name": "a-secret-id",
     "path": "/a/secret/:id?",
     "component": "E:\\\\Work\\\\webinar\\\\Webinar.20240605\\\\webinar-front\\\\pages\\\\a\\\\secret\\\\_id.vue",
-    "chunkName": "pages/a/secret/_id"
+    "chunkName": "pages/a/secret/_id",
+    "_name": "_e55b0388"
   },
   {
     "name": "w-secret-id",
     "path": "/w/secret/:id?",
     "component": "E:\\\\Work\\\\webinar\\\\Webinar.20240605\\\\webinar-front\\\\pages\\\\w\\\\secret\\\\_id.vue",
-    "chunkName": "pages/w/secret/_id"
+    "chunkName": "pages/w/secret/_id",
+    "_name": "_71dbece6"
   },
   {
     "name": "a-id",
     "path": "/a/:id?",
     "component": "E:\\\\Work\\\\webinar\\\\Webinar.20240605\\\\webinar-front\\\\pages\\\\a\\\\_id.vue",
-    "chunkName": "pages/a/_id"
+    "chunkName": "pages/a/_id",
+    "_name": "_66d40728"
   },
   {
     "name": "edit-webinar-id",
     "path": "/edit-webinar/:id?",
     "component": "E:\\\\Work\\\\webinar\\\\Webinar.20240605\\\\webinar-front\\\\pages\\\\edit-webinar\\\\_id.vue",
-    "chunkName": "pages/edit-webinar/_id"
+    "chunkName": "pages/edit-webinar/_id",
+    "_name": "_57cb9f60"
   },
   {
     "name": "s-s",
     "path": "/s/:s?",
     "component": "E:\\\\Work\\\\webinar\\\\Webinar.20240605\\\\webinar-front\\\\pages\\\\s\\\\_s.vue",
-    "chunkName": "pages/s/_s"
+    "chunkName": "pages/s/_s",
+    "_name": "_298c2244"
   },
   {
     "name": "sa-s",
     "path": "/sa/:s?",
     "component": "E:\\\\Work\\\\webinar\\\\Webinar.20240605\\\\webinar-front\\\\pages\\\\sa\\\\_s.vue",
-    "chunkName": "pages/sa/_s"
+    "chunkName": "pages/sa/_s",
+    "_name": "_30265435"
   },
   {
     "name": "w-id",
     "path": "/w/:id?",
     "component": "E:\\\\Work\\\\webinar\\\\Webinar.20240605\\\\webinar-front\\\\pages\\\\w\\\\_id.vue",
-    "chunkName": "pages/w/_id"
+    "chunkName": "pages/w/_id",
+    "_name": "_6a3495d4"
   },
   {
     "name": "home",
     "path": "/",
-    "component": "E:\\\\Work\\\\webinar\\\\Webinar.20240605\\\\webinar-front\\\\pages\\\\login.vue"
+    "component": "E:\\\\Work\\\\webinar\\\\Webinar.20240605\\\\webinar-front\\\\pages\\\\login.vue",
+    "_name": "_2811fa46"
   }
 ]

@@ -271,10 +271,10 @@ export default {
         )
 
         webinars.sort((a, b) => {
-          let dateA = new Date(a.dateStart);
-          let dateB = new Date(b.dateStart);
+          let dateA = new Date(a.dateCreated);
+          let dateB = new Date(b.dateCreated);
 
-          return dateA - dateB;
+          return dateB - dateA;
         });
 
         webinars.forEach((webinar) => {

@@ -310,7 +310,7 @@
               <input class="input__option" v-model="webinarData.redirectLeaveEnteringPage" type="text">
             </div>
           </div>
-          <hr style="margin-top: 40px;"/>
+          <!-- <hr style="margin-top: 40px;"/> -->
           <div class="option__webinar" style="display: none;">
             <label class="label__webinar" >Редирект по окончанию вебинара:</label>
             <input class="input__option" v-model="webinarData.redirectout" type="text">
@@ -319,7 +319,7 @@
             <label class="label__webinar" >Редирект при выходе из вебинарной комнаты:</label>
             <input class="input__option" v-model="webinarData.redirectOut" type="text">
           </div> -->
-          <hr style="margin-top: 40px;"/>
+          <!-- <hr style="margin-top: 40px;"/> -->
         </div>
         <div class="webinar__autowebinar2"
              style="margin-top: 20px; width: 98%; margin-left: 50%; transform: translate(-50%, 0); padding: 30px"
@@ -444,7 +444,7 @@
                       id="screensaver-photo"
                       v-model="screensaverPhoto"
                       @change="onFileChange($event, 'screensaverPhotoUrl')"
-                      :disabled="screensaverVideo !== '' || screensaverAudio !== ''" />
+                      :disabled="screensaverVideo !== ''" />
                     <label class="label__webinar" >Видео приветствие:</label>
                     <input
                       class="input__option"
@@ -463,7 +463,7 @@
                       id="screensaver-audio"
                       v-model="screensaverAudio"
                       @change="onFileChange($event, 'screensaverAudioUrl')"
-                      :disabled="screensaverVideo !== '' || screensaverPhoto !== ''" />
+                      :disabled="screensaverVideo !== ''" />
                     <label class="label__webinar" >Закрепленный комментарий:</label>
                     <input class="input__option" type="text" v-model="webinarData.comment">
                   </div>
@@ -543,7 +543,7 @@
                         <div class="update__option">
                           <div style="display: flex; width: 90%">
                             <span class="wait">{{ link.nameLink }}. [Цвет кнопки: <span :style="{color: link.colorLink}">{{ link.colorLink }}</span>]<br>
-                              <a :href="link.msgLink + ' '">{{ link.msgLink }}</a>
+                              <a :href="link.msgLink + ' '" target="_blank">{{ link.msgLink }}</a>
                             </span>
                           </div>
                           <div>
@@ -962,7 +962,7 @@ export default {
       descriptionModalOpen: false,
     }
   },
-  async mounted() {    
+  async mounted() { 
     var users = await this.$axios.post(
       `/users/getModeratorList`,
       ).catch(e => {
@@ -1124,6 +1124,13 @@ export default {
           }
         }
 
+        if (key === 'screensaverVideo') {
+          if (value === null) {
+            this.screensaverVideo = ''
+          } else {
+            this.screensaverVideo = value
+          }
+        }
         this.webinarData[key] = value
       } else {
         if (key?.startsWith('backgroundImage')) {
@@ -1309,6 +1316,16 @@ export default {
         }
       }
 
+      if (this.screensaverVideo) {
+        this.webinarData.screensaverVideo = this.screensaverVideo
+      } else {
+        this.webinarData.screensaverVideo = ''
+      }
+
+      if (this.webinarData.links) {
+        this.webinarData.links = JSON.stringify(this.webinarData.links)
+      }
+
       if (!this.isMainStr) 
         this.webinarData.userDescription = '';
 
@@ -1323,7 +1340,6 @@ export default {
           backgroundImageStandard: customStandardBackgroundFilename || this.backgrounds.standard.checked,
           backgroundImageDesign: customDesignBackgroundFilename || this.backgrounds.design.checked,
           backgroundImageInside: this.backgrounds.inside.checked,
-          links: JSON.stringify(this.links),
           screensaverPhoto: screensaverPhotoFilename || '',
           screensaverAudio: screensaverAudioFilename || '',
           screensaverVideo: this.screensaverVideo,
@@ -1367,7 +1383,8 @@ export default {
             'screensaverVideo',
             'blockChatBeforeStart',
             'addLinkNotificationSound',
-            'playback'
+            'playback',
+            'dateCreated',
           ].includes(key)) {
             delete data[key]
           }

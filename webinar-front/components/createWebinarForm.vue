@@ -453,7 +453,7 @@
                       id="screensaver-photo"
                       v-model="screensaverPhoto"
                       @change="onFileChange($event, 'screensaverPhotoUrl')"
-                      :disabled="screensaverVideo !== null || screensaverAudio !== null" />
+                      :disabled="screensaverVideo !== ''" />
                     <label class="label__webinar" >Видео приветствие:</label>
                     <input
                       class="input__option"
@@ -486,7 +486,7 @@
                       id="screensaver-audio"
                       v-model="screensaverAudio"
                       @change="onFileChange($event, 'screensaverAudioUrl')"
-                      :disabled="screensaverVideo !== null || screensaverPhoto !== null" />
+                      :disabled="screensaverVideo !== ''" />
                     <label class="label__webinar" >Закрепленный комментарий:</label>
                     <input class="input__option" type="text" v-model="comment">
                   </div>
@@ -569,7 +569,7 @@
                         <div class="update__option">
                           <div style="display: flex; width: 90%">
                             <span class="wait">{{ link.nameLink }}. [Цвет кнопки: <span :style="{color: link.colorLink}">{{ link.colorLink }}</span>]<br>
-                              <a :href="link.msgLink + ' '">{{ link.msgLink }}</a>
+                              <a :href="link.msgLink + ' '" target="_blank">{{ link.msgLink }}</a>
                             </span>
                           </div>
                           <div>
@@ -947,7 +947,7 @@ export default {
       screensaverPhotoUrl: '',
       screensaverAudio: null,
       screensaverAudioUrl: '',
-      screensaverVideo: null,
+      screensaverVideo: '',
       screensaverVideoUrl: '',
       viewersQuantityStart: 0,
       viewersQuantityMiddle: 0,
@@ -1233,6 +1233,7 @@ export default {
           blockChatBeforeStart: (this.blockChatBeforeStart) ? 'Y' : 'N',
           addLinkNotificationSound: (this.addLinkNotificationSound) ? 'Y' : 'N',
           playback: (this.playback) ? 'Y' : 'N',
+          dateCreated: new Date().toISOString().slice(0, 16),
         }
         if (this.banWordsOn) {
           webinarData.banWords = this.banWords.map((banWord) => banWord.trim()).join('; ')
