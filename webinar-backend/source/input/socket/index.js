@@ -52,15 +52,16 @@ module.exports = class SocketServer {
         connection.on('close', () => {
             this.connections.delete(address)
 
-            console.log('Пользователь отключился');
+            console.log('???????????? ??????????');
         })
     }
 
-    updateRoomInfo() {
+    async updateRoomInfo() {
         setInterval(() => {
             for (const roomType in this._rooms) {
                 for (const i in this._rooms[roomType]) {
                     const roomItem = this._rooms[roomType][i]
+                    this.userUpdate(roomType, roomItem.length, i)
                     for (let i = 0; i < roomItem.length; i++) {
                         const address = roomItem[i]
 
@@ -73,13 +74,24 @@ module.exports = class SocketServer {
                                     users: roomItem.length
                                 }
                             }))
+
+                            
                         } else {
                             roomItem.splice(i, 1);
                         }
+                        
                     }
                 }
             }
         }, 2_000)
+    }
+
+    async userUpdate(roomType, count, id) {
+        const res = await this._mysql.execute(`
+            UPDATE ${(roomType == 1) ? 'broadcast': 'webinar'} 
+            SET userCount = ${count}
+            WHERE id = ${id}
+        `)
     }
 
     async command(address, command) {
@@ -105,7 +117,7 @@ module.exports = class SocketServer {
                 console.log("auth", connect.user.auth)
             } else if (connect.user.type == 'ghoste') {
                     // this.winner = 1 + this.winner
-                if (connect.user.login.includes('победитель')) {
+                if (connect.user.login.includes('??????????')) {
                     connect.user.login = connect.user.login + this.winner
                 }
                 connect.user.auth = {
@@ -892,7 +904,7 @@ module.exports = class SocketServer {
                 }
 
                 await this._mysql.execute(`
-                   UPDATE webinar set status = 'Включен' where id = '${command.data.chat}'
+                   UPDATE webinar set status = '???????' where id = '${command.data.chat}'
                 `)
 
                 console.log('start stream', command.data.chat)
@@ -917,10 +929,56 @@ module.exports = class SocketServer {
                 }
 
                 await this._mysql.execute(`
-                   UPDATE webinar set status = 'Выключен' where id = '${command.data.chat}'
+                   UPDATE webinar set status = '????????' where id = '${command.data.chat}'
                 `)
 
                 console.log('finish stream', command.data.chat)
+            }
+        }
+
+        if (command.action == "showScreen") {
+            for (let i = 0; i < this._rooms[isAutowebinar][command.data.chat].length; i++) {
+                const address = this._rooms[isAutowebinar][command.data.chat][i]
+
+                if (this.connections.has(address)) {
+                    const connectForSend = this.connections.get(address)
+                    connectForSend.connection.send(JSON.stringify({
+                        action: "showScreen",
+                        data: {
+                            msg: command.data.message,
+                            status: command.data.status,
+                        }
+                    }))
+                }
+            }
+        }
+
+        if (command.action == "pinMessage") {
+            for (let i = 0; i < this._rooms[isAutowebinar][command.data.chat].length; i++) {
+                const address = this._rooms[isAutowebinar][command.data.chat][i]
+
+                if (this.connections.has(address)) {
+                    const connectForSend = this.connections.get(address)
+                    connectForSend.connection.send(JSON.stringify({
+                        action: "pinMessage",
+                        data: {
+                            pinMessage: command.data.message
+                        }
+                    }))
+                }
+            }
+        }
+
+        if (command.action == "unpinMessage") {
+            for (let i = 0; i < this._rooms[isAutowebinar][command.data.chat].length; i++) {
+                const address = this._rooms[isAutowebinar][command.data.chat][i]
+
+                if (this.connections.has(address)) {
+                    const connectForSend = this.connections.get(address)
+                    connectForSend.connection.send(JSON.stringify({
+                        action: "unpinMessage",
+                    }))
+                }
             }
         }
 

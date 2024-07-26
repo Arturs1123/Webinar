@@ -51,7 +51,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="fons__style">
+                <div class="fons__style" style="display: none;">
                   <div class="chkbox__background__container">
                     <img class="style" :src="$config.staticURL + '/web_background_2.jpg'" alt="">
                     <div
@@ -67,7 +67,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="fons__style">
+                <div class="fons__style" style="display: none;">
                   <div class="chkbox__background__container">
                     <img class="style" :src="$config.staticURL + '/web_background_3.jpg'" alt="">
                     <div
@@ -83,7 +83,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="fons__style">
+                <div class="fons__style" style="display: none;">
                   <div class="chkbox__background__container">
                     <img class="style" :src="$config.staticURL + '/web_background_4.jpg'" alt="">
                     <div
@@ -99,7 +99,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="fons__style">
+                <div class="fons__style" style="display: none;">
                   <div class="chkbox__background__container">
                     <img class="style" :src="$config.staticURL + '/web_background_5.jpg'" alt="">
                     <div
@@ -134,7 +134,7 @@
               <!--                <p class="button__title">Рекомендуемый размер: 1280x720</p>-->
               <!--              </div>-->
             </div>
-            <hr style="margin-top: 20px;" />
+            <!-- <hr style="margin-top: 20px;" /> -->
             <div style="margin-top: 30px; display: none;" class="room__create">
               <p class="room__title">Дизайнерский стиль стиль: <span class="room__subtitle">(Выберите задний фон входа в {{ this.isAutowebinar ? 'автовебинарную' : 'вебинарную' }} комнату)</span></p>
               <div class="create__fons">
@@ -252,7 +252,7 @@
               <!--                <button class="room__upload">Загрузить свой фон</button>-->
               <!--                <p class="button__title">Рекомендуемый размер: 1280x720</p>-->
               <!--              </div>-->
-              <hr style="margin-top: 20px;" />
+              <!-- <hr style="margin-top: 20px;" /> -->
             </div>
           </div>
           <div class="option__webinar">
@@ -272,46 +272,52 @@
                       'chkbox__background__icon_on' :
                       'chkbox__background__icon_off']"
                   ></div>
-                  <span class="room__titles">Отметить важным</span>
+                  <span class="room__titles" style="font-size: 14px !important; line-height: 14px !important;">Отметить важным, чтобы описать ведущего вебинара</span>
                 </div>
               </div>
               <div class="option__webinar">
                 <label class="label__webinar" >Статус ведущего {{ this.isAutowebinar ? 'автовебинара' : 'вебинара' }}:</label>
                 <input class="input__option" v-model="userStatus" type="text">
               </div>
+              <div 
+                style="padding-top: 20px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;"
+              >
+                <p class="label__webinar">Аватар ведущего: Рекомендуемый размер 100x100</p>
+                <v-avatar
+                  @click="openChangeAvatarModal"
+                  style="cursor: pointer"
+                  size="180"
+                >
+                  <v-img
+                    :src="userAvatarUrl"
+                    alt="John"
+                  ></v-img>
+                </v-avatar>
+                <!--              <button class="add__title" @click="openChangeAvatarModal">Загрузить фотографию</button>-->
+                <v-file-input
+                  label="Загрузить изображение"
+                  v-model="userAvatar"
+                  @change="onFileChange($event, 'userAvatarUrl')"
+                  placeholder="Select your files"
+                  style="width: 300px"
+                  variant="underlined"
+                />
+              </div>
               <div class="option__webinar">
-                <label class="label__webinar" >Дата проведения<span class="red--text">{{ !this.isAutowebinar ? '*' : '' }}</span>:</label>
+                <label class="label__webinar" >Дата проведения (Время Московское)<span class="red--text">{{ !this.isAutowebinar ? '*' : '' }}</span>:</label>
                 <input id="dateStart" class="input__option" v-model="dateStart" type="datetime-local" @click="focusDateStart">
               </div>
             </div>
-            <div 
-              style="padding-top: 20px;display: flex;
-              align-items: center;
-              flex-direction: column;
-              justify-content: center;"
-            >
-              <p>Аватар ведущего: Рекомендуемый размер 100x100</p>
-              <v-avatar
-                @click="openChangeAvatarModal"
-                style="cursor: pointer"
-                size="180"
-              >
-                <v-img
-                  :src="userAvatarUrl"
-                  alt="John"
-                ></v-img>
-              </v-avatar>
-              <!--              <button class="add__title" @click="openChangeAvatarModal">Загрузить фотографию</button>-->
-              <v-file-input
-                label="Загрузить изображение"
-                v-model="userAvatar"
-                @change="onFileChange($event, 'userAvatarUrl')"
-                placeholder="Select your files"
-                style="width: 300px"
-                variant="underlined"
-              />
+            <div>
+              <!-- <label class="label__webinar" >Дополнительная ссылка для входа в комнату:</label>
+              <input class="input__option" v-model="redirectOut" type="text"> -->
+              <label class="label__webinar" >Название кнопки входа в вебинар:</label>
+              <input class="input__option" v-model="buttonEnteringPage" :maxlength="30" type="text">
             </div>
-            <div class="room__author">
+            <div>
               <!-- <label class="label__webinar" >Дополнительная ссылка для входа в комнату:</label>
               <input class="input__option" v-model="redirectOut" type="text"> -->
               <label class="label__webinar" >Редирект при выходе со страницы входа:</label>
@@ -613,7 +619,10 @@
                       <div class="dsada">
                         <div class="moderator">
                           <label class="" >Добавить модератора:</label>
-                          <span class="selected__moderator">{{ moderatorText }}</span>
+                          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 0.5rem;">
+                            <span class="selected__moderator">{{ moderatorText }}</span>
+                            <img v-if="moderatorText" class="close_btn" @click="clearModerator" src="../static/svg/close.svg" alt="Nope">
+                          </div>                          
                         </div>
                         <!-- <input
                           class="input__option"
@@ -927,6 +936,7 @@ export default {
       userAvatarName: '',
       userAvatarUrl: '',
       userStatus: '',
+      buttonEnteringPage: '',
       redirectLeave: '',
       redirectOut: '',
       redirectLeaveEnteringPage: '',
@@ -1043,6 +1053,10 @@ export default {
     this.$store.commit('setStrScriptEditor', '');
   },
   methods: {
+    clearModerator() {
+      this.moderator = null
+      this.moderatorText = ''
+    },
     selectModerator(val){
       console.log(val)
       this.moderator = val
@@ -1053,6 +1067,15 @@ export default {
     saveDescription(data) {
       console.log("modalData===>", data)
       this.userDescription = data
+      if (data) {
+        this.isMainStr = true
+        if (!this.userName.includes('!')) {
+          this.userName = this.userName + '!'
+        }
+      } else {
+        this.isMainStr = false
+        this.userName = this.userName.replace('!', '')
+      }
       this.descriptionModalOpen = false
     },
     removeLink(linkForRemove) {
@@ -1200,6 +1223,10 @@ export default {
       if (!this.isMainStr) 
         this.userDescription = '';
 
+      if (this.buttonEnteringPage === '') {
+        this.buttonEnteringPage = 'Войти в комнату'
+      } 
+
       try {
         const webinarData = {
           userId: this.userId,
@@ -1214,6 +1241,7 @@ export default {
           redirectLeave: this.redirectLeave,
           redirectLeaveEnteringPage: this.redirectLeaveEnteringPage,
           additionalLinkEnterRoom: this.additionalLinkEnterRoom,
+          buttonEnteringPage: this.buttonEnteringPage,
           dateStart: this.dateStart,
           comment: this.comment,
           url: this.url,
@@ -1234,6 +1262,9 @@ export default {
           addLinkNotificationSound: (this.addLinkNotificationSound) ? 'Y' : 'N',
           playback: (this.playback) ? 'Y' : 'N',
           dateCreated: new Date().toISOString().slice(0, 16),
+          isActive: 1,
+          status: 0,
+          userCount: 0,
         }
         if (this.banWordsOn) {
           webinarData.banWords = this.banWords.map((banWord) => banWord.trim()).join('; ')
@@ -1428,14 +1459,7 @@ export default {
       await this.$router.push('/create-an-autowebinar-script-editor')
     },
     toggleMainStr() {
-      this.isMainStr = !this.isMainStr
-      if (this.isMainStr) {
-        this.descriptionModalOpen = true
-        this.userName = this.userName + '!'
-      } else {
-        this.descriptionModalOpen = false
-        this.userName = this.userName.replace('!', '')
-      }
+      this.descriptionModalOpen = true
     }, 
     focusDateStart() {
       const inputElement = document.querySelector("#dateStart");
@@ -1455,6 +1479,10 @@ html {
 }
 *, *:before, *:after {
   box-sizing: inherit;
+}
+
+.close_btn {
+  cursor: pointer;
 }
 
 .chkbox__background__container {
@@ -1806,17 +1834,18 @@ html {
   color: #000000;
   float: left;
   margin-top: 25px;
+  gap: 10px;
 }
 
 .selected__moderator {
   font-size: 18px;
   line-height: 18px;
-  margin: 0 0 0.5rem 10px;
 }
 
 .select__moderator {
   display: flex;
-  width: 100%
+  width: 100%;
+  margin-top: 10px;
 }
 
 .select__moderator--select2 {
@@ -1931,9 +1960,8 @@ html {
 }
 
 .title-wrapper {
-  display: grid; 
-  grid-template-columns: 1fr 1fr; 
-  grid-column-gap: 20px
+  display: flex; 
+  flex-direction: column;
 }
 
 .room_checkbox_column {
@@ -2101,9 +2129,8 @@ html {
   }
 
   .title-wrapper {
-    display: grid; 
-    grid-template-columns: 1fr; 
-    grid-column-gap: 20px
+    display: flex; 
+    flex-direction: column;
   }
 
   .chkbox__background__container img {
@@ -2357,10 +2384,6 @@ html {
     align-items: center;
     cursor: pointer;
     margin-bottom: 30px;
-  }
-
-  .close_btn {
-    cursor: pointer;
   }
 
   .room__titles {

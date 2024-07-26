@@ -17,6 +17,7 @@
 <!--          <img :src="background" alt="">-->
           <div v-if="!isLoad" class="sekret__form">
             <div v-if="!isNotFound" class="form__sign" action="">
+              <img class="close_btn" @click="roomOut" src="../../static/svg/close.svg" alt="Nope">
               <div class="form__buttons" style="display: none;">
                 <button style="border-radius: 7px;" class="form__button__sign" @click="">Вход на Мастер-Класс</button>
               </div>
@@ -61,7 +62,7 @@
                   class="form__button__sign"
                   @click="sign"
                 >
-                  Войти в комнату
+                  {{ buttonEnteringPage }}
                 </button>
                 <NuxtLink
                   v-if="additionalLinkEnterRoom"
@@ -94,7 +95,7 @@ export default {
     const routePath = this.$route.path
     console.log(this.$route)
     console.log(routePath)
-    this.isAutowebinar = (routePath.includes('/a/') ? 1 : 0)
+    this.isAutowebinar = (localStorage.getItem('isAutowebinar')) ? (localStorage.getItem('isAutowebinar')) : 0
 
 
     this.webinar = await this.$axios.get(`/webinars/prettyLink?prettyLink=${webinarSearch}&isAutowebinar=${this.isAutowebinar}`)
@@ -109,6 +110,9 @@ export default {
         this.dateStartPole = this.$moment(this.dateStart).format("DD.MM.YYYY в hh:mm мск")
         this.authorAvatar = this.$config.staticURL + '/' + data.data.userAvatar
         this.additionalLinkEnterRoom = data.data.additionalLinkEnterRoom
+        this.status = data.data.status
+        this.buttonEnteringPage = data.data.buttonEnteringPage
+        this.redirectLeaveEnteringPage = data.data.redirectLeaveEnteringPage ? data.data.redirectLeaveEnteringPage : 'http://neearby.pro'
 
         if (data.data.backgroundImageStandard) {
           this.backgroundImage = {
@@ -132,7 +136,7 @@ export default {
     if (this.webinar.status == 2) {
       this.isNotFound = true
     }
-
+    console.log(this.status)
     this.isLoad = false
 
     this.interval()
@@ -193,18 +197,21 @@ export default {
       },
       additionalLinkEnterRoom: '',
       tryClickPopupWithoutLoginAlert: false,
-      banWords: []
+      banWords: [],
+      status: 0,
+      buttonEnteringPage: '',
+      redirectLeaveEnteringPage: '',
     }
   },
   methods: {
     interval(){
-      if (this.status == 'Включен') {
+      if (this.status) {
         this.dateStartPole = "В эфире"
         return
       }
 
       const int = setInterval(()=> {
-        if (this.status == 'Включен') {
+        if (this.status) {
           this.dateStartPole = "В эфире"
           clearInterval(int)
           return
@@ -225,7 +232,7 @@ export default {
         const hDiff = diff / 3600 / 1000
 
         if (hDiff > 3) {
-          this.dateStartPole = "Дата начала  " + moment(dateStart).tz('Europe/Moscow').format("DD.MM.YYYY в hh:mm мск")
+          this.dateStartPole = moment(dateStart).tz('Europe/Moscow').format("DD.MM.YYYY в hh:mm мск")
           return
         }
 
@@ -310,6 +317,9 @@ export default {
       } else {
         await this.$router.push(`/a/${this.$route.params.s}`)
       }
+    },
+    roomOut() {
+      window.location.href= this.redirectLeaveEnteringPage
     }
   }
 }
@@ -317,9 +327,9 @@ export default {
 
 <style scoped>
 .author__info {
-  display: flex;
+  /* display: flex;
   justify-content: flex-start;
-  align-items: start;
+  align-items: start; */
 }
 .sektet__fons {
   height: 100%;
@@ -343,10 +353,14 @@ export default {
 .form__sign {
   width: 100%;
   height: auto;
+  min-height: 450px;
+  max-height: 750px;
+  overflow-y: auto;
   left: -1px;
   top: 19px;
   background: rgba(255, 255, 255, 0.7);
   border-radius: 10px;
+  position: relative;
 }
 
 .sekret__form {
@@ -390,8 +404,10 @@ export default {
 }
 
 .form__button__sign {
-  width: 40%;
-  height: 39px;
+  width: auto;
+  min-width: 40%;
+  /* height: 39px; */
+  padding: 16px 25px;
   left: 182px;
   top: 477px;
   color: white;
@@ -438,8 +454,7 @@ export default {
   font-family: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-style: normal;
   font-weight: 500;
-  font-size: 18px;
-  line-height: 22px;
+  font-size: 30px;
   color: #000000;
   padding: 30px;
   text-overflow: ellipsis;
@@ -503,6 +518,13 @@ export default {
 .form__author > img {
   margin-left: 50px;
   margin-right: 20px;
+}
+
+.close_btn {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  cursor: pointer;
 }
 
 @media (min-width: 1264px) {

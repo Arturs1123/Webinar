@@ -13,16 +13,17 @@
               </div>
             </div>
             <div class="header-profile-icons" id="headerProfileIcons">
-              <div class="profile__icon" @click="() => {
-            if (links.length) {
-              openBagMoneyContentModal()
-            } else {
-              openBagMoneyWaitModal()
-            }
-          }">
+              <div style="display: none;" class="profile__icon" @click="() => {
+                  if (links.length) {
+                    openBagMoneyContentModal()
+                  } else {
+                    openBagMoneyWaitModal()
+                  }
+                }"
+              >
                 <img src="../static/svg/moneyChat.svg" alt="">
               </div>
-              <div class="profile__icon" @click="openSupportModal">
+              <div style="display: none;" class="profile__icon" @click="openSupportModal">
                 <img src="../static/svg/support.svg" alt="">
               </div>
               <div class="profile__icon" style="cursor: default" v-click-outside="() => {dayNightModeMenuOpen = false}">
@@ -103,7 +104,7 @@
                 </ul>
               </div>
 
-              <div class="profile__icon volume-hidden" @click="() => {
+              <div style="display: none;" class="profile__icon volume-hidden" @click="() => {
                   if (volumeOff) {
                     onVolume()
                   } else {
@@ -118,7 +119,7 @@
               </div>
             </div>
           </div>
-          <div class="profile__icon volume" @click="() => {
+          <div style="display: none;" class="profile__icon volume" @click="() => {
                   if (volumeOff) {
                     onVolume()
                   } else {
@@ -134,8 +135,8 @@
           <div class="room-wrapper">
             <div class="room" >
               <div v-if="isModer || isAdmin" class="main__webinar__buttons" >
-                <button class="buttons__translate" @click="openStartStreamModal" v-if="isAdmin && status == 'Выключен' && !isAutoWebinar">Начать трансляцию</button>
-                <button class="buttons__translate" @click="openStopStreamModal" v-if="isAdmin && status == 'Включен' && !isAutoWebinar">Завершить трансляцию</button>
+                <button class="buttons__translate" @click="openStartStreamModal" v-if="isAdmin && !status && !isAutoWebinar">Начать трансляцию</button>
+                <button class="buttons__translate" @click="openStopStreamModal" v-if="isAdmin && status && !isAutoWebinar">Завершить трансляцию</button>
                 <!--          <button class="buttons__setting" v-if="!isBlockChat" @click="blockChat">Отключить чат</button>-->
                 <!--          <button class="buttons__setting" v-else @click="unBlockChat">Включить чат</button>-->
                 <a>
@@ -170,7 +171,7 @@
                       playsinline
                     ></video> -->
                     <div style="width: 100%; height: 100%; position: absolute; top: 0px; left: 0px; background: transparent;"></div> 
-                    <div class="startPole" v-if="dateStartPole != ''">
+                    <div class="startPole" id="pole" v-if="dateStartPole != ''">
                       <v-icon aria-label="My Account" role="img" aria-hidden="false">
                         mdi-clock-time-nine-outline
                       </v-icon>
@@ -228,6 +229,32 @@
                   </div>
                 </div>
               </div>
+              <div id="rightMessage">
+                <div class="screenContent">
+                  <div class="messageUserAvatar">
+                    <v-avatar size="40" style="margin-left: 5px; margin-right: 10px" color="blue">
+                      <v-img
+                        :src="messageUserAvatar"
+                        alt="Фото не загружено"
+                      ></v-img>
+                    </v-avatar>
+                  </div>
+                  <div class="messageDiv">
+                    <div class="messageUser">
+                      {{ cutString(messageUsername, 20) }}
+                    </div>
+                    <div class="messageContent">
+                      <div v-if="!isLink(messageContent)">{{ cutString(messageContent, 30) }}</div>
+                      <div v-else>
+                        <a :href="messageContent" target="_blank">{{ messageContent }}</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div v-if="pinComment" class="pinComment">
+                  <p>{{ pinComment }}</p>
+                </div>
+              </div>
               <!-- <div class="video-bottom">
                 <button class="buttons__addchat btn-addchat-small" @click="openAddLinkModal">Добавить ссылку в чат</button>
               </div> -->
@@ -239,7 +266,7 @@
             </div>
             <div class="chat">
               <div class="webinar__chat__user">
-                <v-avatar size="70">
+                <v-avatar size="60">
                   <v-img
                     :src="authorAvatar"
                     alt="Фото не загружено"
@@ -255,7 +282,8 @@
                         @mouseover="tooltipFlag = true"
                         @mouseleave="tooltipFlag = false"
                         v-click-outside="tooltipClose"
-                        style="cursor: pointer;"  
+                        style="cursor: pointer; color: #0077FF"  
+                        v-bind:class = "{'descriptionBlack' : !this.userDescription }"
                       >
                         {{ authorName }}
                       </span>
@@ -268,20 +296,20 @@
                   </div>
                 </div>
               </div>
-              <div class="webinar__chat__guest" v-bind:class = "{'webinar__chat__guest__dark' : this.darkMode }">
-                <!-- <v-icon aria-label="My Account" role="img" aria-hidden="false">
-                  mdi-account-group
-                </v-icon> -->
-                <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24" v-if="this.darkMode">
-                  <path fill="white" d="M12 5.5A3.5 3.5 0 0 1 15.5 9a3.5 3.5 0 0 1-3.5 3.5A3.5 3.5 0 0 1 8.5 9A3.5 3.5 0 0 1 12 5.5M5 8c.56 0 1.08.15 1.53.42c-.15 1.43.27 2.85 1.13 3.96C7.16 13.34 6.16 14 5 14a3 3 0 0 1-3-3a3 3 0 0 1 3-3m14 0a3 3 0 0 1 3 3a3 3 0 0 1-3 3c-1.16 0-2.16-.66-2.66-1.62a5.54 5.54 0 0 0 1.13-3.96c.45-.27.97-.42 1.53-.42M5.5 18.25c0-2.07 2.91-3.75 6.5-3.75s6.5 1.68 6.5 3.75V20h-13zM0 20v-1.5c0-1.39 1.89-2.56 4.45-2.9c-.59.68-.95 1.62-.95 2.65V20zm24 0h-3.5v-1.75c0-1.03-.36-1.97-.95-2.65c2.56.34 4.45 1.51 4.45 2.9z" />
-                </svg>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24" v-else>
-                  <path fill="gray" d="M12 5.5A3.5 3.5 0 0 1 15.5 9a3.5 3.5 0 0 1-3.5 3.5A3.5 3.5 0 0 1 8.5 9A3.5 3.5 0 0 1 12 5.5M5 8c.56 0 1.08.15 1.53.42c-.15 1.43.27 2.85 1.13 3.96C7.16 13.34 6.16 14 5 14a3 3 0 0 1-3-3a3 3 0 0 1 3-3m14 0a3 3 0 0 1 3 3a3 3 0 0 1-3 3c-1.16 0-2.16-.66-2.66-1.62a5.54 5.54 0 0 0 1.13-3.96c.45-.27.97-.42 1.53-.42M5.5 18.25c0-2.07 2.91-3.75 6.5-3.75s6.5 1.68 6.5 3.75V20h-13zM0 20v-1.5c0-1.39 1.89-2.56 4.45-2.9c-.59.68-.95 1.62-.95 2.65V20zm24 0h-3.5v-1.75c0-1.03-.36-1.97-.95-2.65c2.56.34 4.45 1.51 4.45 2.9z" />
-                </svg>
-                <p v-if="chatNumber !== 0" class="guest">Участников: {{ chatNumber }}</p>
-                <p v-else class="guest">Участников: 0</p>
-              </div>
               <div class="webinar__chat__chat">
+                <div class="webinar__chat__guest" v-bind:class = "{'webinar__chat__guest__dark' : this.darkMode }">
+                  <!-- <v-icon aria-label="My Account" role="img" aria-hidden="false">
+                    mdi-account-group
+                  </v-icon> -->
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24" v-if="this.darkMode">
+                    <path fill="white" d="M12 5.5A3.5 3.5 0 0 1 15.5 9a3.5 3.5 0 0 1-3.5 3.5A3.5 3.5 0 0 1 8.5 9A3.5 3.5 0 0 1 12 5.5M5 8c.56 0 1.08.15 1.53.42c-.15 1.43.27 2.85 1.13 3.96C7.16 13.34 6.16 14 5 14a3 3 0 0 1-3-3a3 3 0 0 1 3-3m14 0a3 3 0 0 1 3 3a3 3 0 0 1-3 3c-1.16 0-2.16-.66-2.66-1.62a5.54 5.54 0 0 0 1.13-3.96c.45-.27.97-.42 1.53-.42M5.5 18.25c0-2.07 2.91-3.75 6.5-3.75s6.5 1.68 6.5 3.75V20h-13zM0 20v-1.5c0-1.39 1.89-2.56 4.45-2.9c-.59.68-.95 1.62-.95 2.65V20zm24 0h-3.5v-1.75c0-1.03-.36-1.97-.95-2.65c2.56.34 4.45 1.51 4.45 2.9z" />
+                  </svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24" v-else>
+                    <path fill="gray" d="M12 5.5A3.5 3.5 0 0 1 15.5 9a3.5 3.5 0 0 1-3.5 3.5A3.5 3.5 0 0 1 8.5 9A3.5 3.5 0 0 1 12 5.5M5 8c.56 0 1.08.15 1.53.42c-.15 1.43.27 2.85 1.13 3.96C7.16 13.34 6.16 14 5 14a3 3 0 0 1-3-3a3 3 0 0 1 3-3m14 0a3 3 0 0 1 3 3a3 3 0 0 1-3 3c-1.16 0-2.16-.66-2.66-1.62a5.54 5.54 0 0 0 1.13-3.96c.45-.27.97-.42 1.53-.42M5.5 18.25c0-2.07 2.91-3.75 6.5-3.75s6.5 1.68 6.5 3.75V20h-13zM0 20v-1.5c0-1.39 1.89-2.56 4.45-2.9c-.59.68-.95 1.62-.95 2.65V20zm24 0h-3.5v-1.75c0-1.03-.36-1.97-.95-2.65c2.56.34 4.45 1.51 4.45 2.9z" />
+                  </svg>
+                  <p v-if="chatNumber !== 0" class="guest">Участников: {{ chatNumber }}</p>
+                  <p v-else class="guest">Участников: 0</p>
+                </div>
                 <div
                   v-if="isModer || isAdmin"
                   class="moder_panel"
@@ -371,14 +399,15 @@
                 <div id="chating" :style="{
                   'padding-right': '5px',
                   'min-height': 'auto',
-                  'overflow-y': 'scroll',
+                  'overflow-y': 'auto',
                   'display': 'flex',
                   'flex-direction': 'column',
                   'flex-grow': 2
                 }">
                 <!-- 'max-height': calcChatHeight(), -->
-                  <div v-for="item in items"> <!-- .filter((elem) => elem.user.type === 'message') -->
+                  <div v-for="(item, index) in items" style="font-family: 'Roboto';"> <!-- .filter((elem) => elem.user.type === 'message') -->
                     <div v-if="item?.user?.type == 'ghoste'"  class="form__author" :style="{
+                        'position': 'relative',
                         width: '100%',
                         'margin-top': '10px',
                         'border-radius': '5px',
@@ -387,12 +416,15 @@
                         'background-color': ((isAdmin || isModer) && findHighlightedMessage(item)) ? 'rgba(255, 194, 138, 0.6)' : 'rgba(255, 219, 186, 0.6)',
                         'align-items': 'center',
                       }"
-                        @click="highlightMessage(item)"
                     >
                       <v-avatar size="40" style="margin-left: 5px; margin-right: 10px" color="blue">
                         <!-- {{ item.user.data[0] }} User -->
                       </v-avatar>
-                      <div style="width: 90%;">
+                      <div 
+                        style="width: 90%; " 
+                        @click="highlightMessage(item)"
+                        @contextmenu.prevent="showMenu('ghoste' + index)"
+                      >
                         <div style="display: flex; justify-content: flex-start; align-items: center">
                           <p class="author__name" style="font-weight: 900; display: inline-block; margin-right: 10px">
                             {{ item.user.auth.login }} <!-- {{ item.user.data }} -->
@@ -401,9 +433,16 @@
                         </div>
                         <p style="width: 90%; overflow-wrap: break-word;">{{ item.msg }}</p>
                       </div>
+                      <div v-if="showContextMenu && activeItem === ('ghoste' + index)" v-click-outside="outsideMenu" class="contextMenu" >
+                        <div class="contextMenuContent">
+                          <button class="menuBtn" @click="showScreen(item)">Показать на экране</button>
+                          <button class="menuBtn" @click="pinMessage(item)">Закрепить в чат</button>
+                        </div>
+                      </div>
                     </div>
                     <!-- v....else....if="item?.user?.auth?.id == webinar.userId"  -->
                     <div  v-else-if="item?.user?.type == 'token'" class="form__author" :style="{
+                        'position': 'relative',
                         width: '100%',
                         'margin-top': '10px',
                         'border-radius': '5px',
@@ -412,7 +451,6 @@
                         'background-color': ((isAdmin || isModer) && findHighlightedMessage(item)) ? 'rgba(255, 194, 138, 0.6)' : 'rgba(255, 219, 186, 0.6)',
                         'align-items': 'center',
                       }"
-                        @click="highlightMessage(item)"
                     >
                       <v-avatar size="40" style="margin-left: 5px; margin-right: 10px" color="blue">
                         <v-img
@@ -420,8 +458,14 @@
                           alt="Фото не загружено"
                         ></v-img>
                       </v-avatar>
-                      <div style="width: 90%;">
-                        <div style="display: flex; justify-content: flex-start; align-items: center">
+                      <div 
+                        style="width: 90%;"
+                        @click="highlightMessage(item)"
+                        @contextmenu.prevent="showMenu('token' + index)"
+                      >
+                        <div 
+                          style="display: flex; justify-content: flex-start; align-items: center"
+                        >
                           <p class="author__name chat_admin_color" style="font-weight: 900; display: inline-block; margin-right: 10px">{{ item.user.auth.name }}</p>
                           <div class="img" style="display: inline-block">
                             <img style="width: 15px; margin-right: 8px" src="../static/svg/corona.svg" alt="">
@@ -432,8 +476,14 @@
                         <div v-else >
                           <p>{{ item.user.name }}</p>
                           <p :style="{ 'display': 'inline-block', 'padding-left': '5px', 'padding-right': '5px', 'border-radius': '3px', 'overflow-wrap': 'break-word', 'background-color': item.user.color }">
-                            <a :href="item.msg" target="_blank" @click="addActionWS({ type: 'clickLink', msg: item.msg, })">{{ item.msg }}</a>
+                            <a :href="item.msg" target="_blank" >{{ item.msg }}</a>
                           </p>
+                        </div>
+                      </div>
+                      <div v-if="showContextMenu && activeItem === ('token' + index)" v-click-outside="outsideMenu" class="contextMenu" >
+                        <div class="contextMenuContent">
+                          <button class="menuBtn" @click="showScreen(item)">Показать на экране</button>
+                          <button class="menuBtn" @click="pinMessage(item)">Закрепить в чат</button>
                         </div>
                       </div>
                     </div>
@@ -451,6 +501,101 @@
                     </div>
                   </div>
                 </div>
+                
+                <!-- sss -->
+                <div>
+                  <div class="customLine"></div>
+                  <div v-for="(item, index) in pinItems" style="font-family: 'Roboto'; width: 100%;"> <!-- .filter((elem) => elem.user.type === 'message') -->
+                    <div v-if="item?.user?.type == 'ghoste'"  class="form__author" :style="{
+                        'position': 'relative',
+                        width: '100%',
+                        'margin-top': '5px',
+                        'border-radius': '5px',
+                        cursor: (isAdmin || isModer) ? 'pointer' : 'default',
+                        'background-color': 'rgba(255, 219, 186, 0.6)',
+                        'align-items': 'center',
+                      }"
+                    >
+                      <div class="pinContent">
+                        <v-avatar size="40" style="margin-left: 5px; margin-right: 10px" color="blue">
+                          <!-- {{ item.user.data[0] }} User -->
+                        </v-avatar>
+                        <div 
+                          style="width: 90%; " 
+                          @contextmenu.prevent="showMenu('pin' + index)"
+                        >
+                          <div style="display: flex; justify-content: flex-start; align-items: center">
+                            <p class="author__name" style="font-weight: 900; display: inline-block; margin-right: 10px">
+                              {{ item.user.auth.login }} <!-- {{ item.user.data }} -->
+                            </p>
+                            <p style="line-height: 10px; font-size: 10px; color: rgb(73,71,71)">{{ getMessageTime(item.user.timestamp) }}</p>
+                          </div>
+                          <p style="width: 90%; overflow-wrap: break-word;">{{ item.msg }}</p>
+                        </div>
+                      </div>
+                      <div class="comment">
+                        {{ comment }}
+                      </div>
+                      <div v-if="showContextMenu && activeItem === ('pin' + index)" v-click-outside="outsideMenu" class="contextMenu" >
+                        <div class="contextMenuContent">
+                          <button class="menuBtn" @click="showScreen(item, 'pin')">Показать на экране</button>
+                          <button class="menuBtn" @click="unpinMessage()">Открепить из чата</button>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- v....else....if="item?.user?.auth?.id == webinar.userId"  -->
+                    <div  v-else-if="item?.user?.type == 'token'" class="form__author" :style="{
+                        'position': 'relative',
+                        width: '100%',
+                        'margin-top': '10px',
+                        'border-radius': '5px',
+                        cursor: (isAdmin || isModer) ? 'pointer' : 'default',
+                        'background-color': 'rgba(255, 219, 186, 0.6)',
+                        'align-items': 'center',
+                      }"
+                    >
+                      <div class="pinContent">
+                        <v-avatar size="40" style="margin-left: 5px; margin-right: 10px" color="blue">
+                          <v-img
+                            :src="authorAvatar"
+                            alt="Фото не загружено"
+                          ></v-img>
+                        </v-avatar>
+                        <div 
+                          style="width: 90%;"
+                          @contextmenu.prevent="showMenu('pinToken' + index)"
+                        >
+                          <div 
+                            style="display: flex; justify-content: flex-start; align-items: center"
+                          >
+                            <p class="author__name chat_admin_color" style="font-weight: 900; display: inline-block; margin-right: 10px">{{ item.user.auth.name }}</p>
+                            <div class="img" style="display: inline-block">
+                              <img style="width: 15px; margin-right: 8px" src="../static/svg/corona.svg" alt="">
+                            </div>
+                            <p style="line-height: 10px; font-size: 10px; color: rgb(73,71,71)">{{ getMessageTime(item.user.timestamp) }}</p>
+                          </div>
+                          <p v-if="!isLink(item.msg)" style="width: 90%; overflow-wrap: break-word;">{{ item.msg }}</p>
+                          <div v-else >
+                            <p>{{ item.user.name }}</p>
+                            <p :style="{ 'display': 'inline-block', 'padding-left': '5px', 'padding-right': '5px', 'border-radius': '3px', 'overflow-wrap': 'break-word', 'background-color': item.user.color }">
+                              <a :href="item.msg" target="_blank" @click="addActionWS({ type: 'clickLink', msg: item.msg, })">{{ item.msg }}</a>
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="comment">
+                        {{ comment }}
+                      </div>
+                      <div v-if="showContextMenu && activeItem === ('pinToken' + index)" v-click-outside="outsideMenu" class="contextMenu" >
+                        <div class="contextMenuContent">
+                          <button class="menuBtn" @click="showScreen(item, 'pin')">Показать на экране</button>
+                          <button class="menuBtn" @click="unpinMessage()">Открепить из чата</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- sss -->
                 <div style="margin-top: 5px; border: 1px solid #818C99; background-color: white; border-radius: 10px; display: flex; align-content: center; justify-content: space-between;"
                 >
                   <input
@@ -464,12 +609,12 @@
                     }"
                     type="text"
                     clearable
-                    :placeholder="(iBanned) ? 'Вы забанены' : (isBlockChat) ? 'Чат заблокирован' : 'Введите сообщение..'"
-                    :disabled="iBanned || isBlockChat"
+                    :placeholder="(iBanned || !isActive) ? 'Вы забанены' : (isBlockChat) ? 'Чат заблокирован' : 'Введите сообщение..'"
+                    :disabled="iBanned || isBlockChat || !isActive"
                   ></input>
                   <div style="display: flex; justify-content: center; align-items: center; padding-left: 5px; gap: 3px; ">
                     <button @click="onHeart" class="chat-heart" type="button" 
-                                                  :disabled="iBanned || isBlockChat">&nbsp;</button>
+                                                  :disabled="iBanned || isBlockChat || !isActive">&nbsp;</button>
                     <button
                       id="id_of_button"
                       @click="sendMsg"
@@ -481,7 +626,7 @@
                       width: 30px;
                       height: 40px;
                     "
-                      :disabled="iBanned || isBlockChat"
+                      :disabled="iBanned || isBlockChat || !isActive"
                     >
                       <v-icon>
                         mdi-send
@@ -633,13 +778,13 @@ export default {
     SendedLink,
     DeleteAllMessage, AddInChat, StartTranslate, LeaveRoom, SupportWebinar, BagMoneyContent, BagMoneyWait, StopStream
   },
-  beforeDestroy() {
-    window.removeEventListener('beforeunload', this.onBeforeUnload);
-    window.removeEventListener('storage', this.handleStorageChange);
-  },
-  created() {
-    window.addEventListener('storage', this.handleStorageChange);
-  },
+  // beforeDestroy() {
+  //   window.removeEventListener('beforeunload', this.onBeforeUnload);
+  //   window.removeEventListener('storage', this.handleStorageChange);
+  // },
+  // created() {
+  //   window.addEventListener('storage', this.handleStorageChange);
+  // },
   computed: {
     ...mapState([
       'roomTitle', 'authorName', 'authorStatus'
@@ -664,7 +809,7 @@ export default {
       }
     });
     
-    window.addEventListener('beforeunload', this.onBeforeUnload);
+    // window.addEventListener('beforeunload', this.onBeforeUnload);
     // document.getElementsByTagName("footer")[0].style.display = "none"
 
     if (this.roomTitle.length < 20) {
@@ -710,6 +855,7 @@ export default {
     this.webinar = await this.$axios.get(`/webinars/prettyLink?prettyLink=${webinarSearch}&isAutowebinar=${isAutowebinar}`)
       .then(data => {
         this.webinarData = data.data
+        this.isActive = data.data.isActive
         this.webinarId = data.data.id
         this.url = data.data.url
         this.userDescription = data.data.userDescription
@@ -719,14 +865,13 @@ export default {
         this.screensaverPhoto = data.data.screensaverPhoto
         this.screensaverAudio = data.data.screensaverAudio
         this.screensaverVideo = data.data.screensaverVideo
-        console.log("mount++++", this.screensaverAudio)
         const newData = {
           roomTitle: data.data.title,
           authorStatus: data.data.userStatus,
           authorName: data.data.userName,
         }
         this.$store.commit('updateRoom', newData);
-
+        console.log("datadatadta", data.data.status)
         this.status = data.data.status
         this.items = (data.data.chat?.length) ? data.data.chat.map(msg => {
           return {  msg: msg.msg,
@@ -754,7 +899,6 @@ export default {
         });
         this.items = this.items.filter((item) => {
           return (!this.isLink(item.msg))})
-
         this.comment = data.data.comment
         this.dateStart = data.data.dateStart
         this.playbackFrequency = data.data.playbackFrequency
@@ -782,7 +926,7 @@ export default {
 
         this.isBlockChatBeforeStart = (data.data.blockChatBeforeStart === 'Y') ? true : false
 
-        if (this.status === 'Выключен') {
+        if (!this.status) {
           if (data.data.blockedChat === 'Y' || (!data.data.blockedChat && data.data.blockChatBeforeStart === 'Y')) {
             this.isBlockChat = true
           } else if (data.data.blockedChat === 'N' || (!data.data.blockedChat && data.data.blockChatBeforeStart === 'N')) {
@@ -810,7 +954,11 @@ export default {
         return data.data
       })
     console.log("webinarData=====>", this.webinarData)
-    this.webinarData.duration = 3509483;
+    console.log(this.webinarData)
+    if (this.webinarData === '') {
+      window.location.href = 'http://neearby.pro'
+    }
+    this.webinarData.duration = 3600000;
     if (isAutowebinar && this.webinarData.viewersQuantityStart) {
       this.chatNumber = this.webinarData.viewersQuantityStart;
       console.log(this.chatNumber)
@@ -1015,73 +1163,74 @@ export default {
           document.getElementById("black").style.backgroundImage = "url("+this.$config.staticURL + "/defaultSplashImage.jpg)"
         }
         
-
         const date = new Date()
         const dbDate = new Date(this.dateStart)
         const offset = date.getTimezoneOffset() 
-        const utc = date.getTime() + (offset * 60000)
-        const dbUtc = dbDate.getTime() + (offset* 60000)
-
-        const now = new Date(utc + 180 * 60000)
-        let dateStart = new Date(dbUtc + 180 * 60000)
+        const now = date.getTime() + (offset * 60000)
+        let dateStart = dbDate.getTime() + (offset* 60000)
 
         const tempDiff = dateStart - now
 
         console.log(tempDiff)
 
-        if (tempDiff < 0) {
-          if (!this.isAutoWebinar) {
-            // this.enableWebinar(this.webinarId, 'Включен', this.isAutoWebinar)
-            // this.socket.send(JSON.stringify({
-            //   action: "startStream",
-            //   data: {
-            //     isAutowebinar: this.isAutoWebinar,
-            //     chat: String(this.webinarId), // this.$route.params.id,
-            //     playTime: moment().tz('Europe/Moscow'),
-            //   }
-            // }))
-            if (this.status == 'Включен') {
-              this.playTime = this.dateStart
-              this.start()
-            } else {
-              this.dateStartPole = "Ожидание начала эфира от ведущего"
-            }
-            
-          } else {
-            let temp = 0;
-            if (this.playbackFrequency == "1min") 
-              temp = 60 * 1000
-            else if (this.playbackFrequency == '5min')
-              temp = 5 * 60 * 1000
-            else if (this.playbackFrequency == '10min')
-              temp = 10 * 60 * 1000
-            else if (this.playbackFrequency == '30min')
-              temp = 30 * 60 * 1000
-            else if (this.playbackFrequency == '1hour')
-              temp = 3600 * 1000
-            else if (this.playbackFrequency == '6hour')
-              temp = 6 * 3600 * 1000
-            else if (this.playbackFrequency == '12hour')
-              temp = 12 * 3600 * 1000
-            else
-              temp = 24 * 3600 * 1000
-            
-            if (Math.floor(Math.abs(tempDiff / temp)) > 0 ) {
-              this.dateStart = new Date(dbUtc + 180 * 60000 + (Math.floor(Math.abs(tempDiff / temp)) + 1) * temp) 
-            }
-
-            setInterval(()=> {
-              const date = new Date()
-              const offset = date.getTimezoneOffset() 
-              const utc = date.getTime() + (offset * 60000)
+        if (this.isActive) {
+          if (tempDiff < 0) {
+            if (!this.isAutoWebinar) {
+              // this.enableWebinar(this.webinarId, 1, this.isAutoWebinar)
+              // this.socket.send(JSON.stringify({
+              //   action: "startStream",
+              //   data: {
+              //     isAutowebinar: this.isAutoWebinar,
+              //     chat: String(this.webinarId), // this.$route.params.id,
+              //     playTime: moment().tz('Europe/Moscow'),
+              //   }
+              // }))
+              console.log("fdsafsdagsdfgdf", this.status)
+              if (this.status) {
+                this.playTime = this.dateStart
+                this.start()
+              } else {
+                if (this.isAdmin || this.isModer) {
+                  this.dateStartPole = ""
+                } else {
+                  this.dateStartPole = "Ожидание начала эфира от ведущего"
+                }
+              }
               
-              const now = new Date(utc + 180 * 60000)
-              let dateStart = this.dateStart
-              const diff = dateStart - now
+            } else {
+              let temp = 0;
+              if (this.playbackFrequency == "1min") 
+                temp = 60 * 1000
+              else if (this.playbackFrequency == '5min')
+                temp = 5 * 60 * 1000
+              else if (this.playbackFrequency == '10min')
+                temp = 10 * 60 * 1000
+              else if (this.playbackFrequency == '30min')
+                temp = 30 * 60 * 1000
+              else if (this.playbackFrequency == '1hour')
+                temp = 3600 * 1000
+              else if (this.playbackFrequency == '6hour')
+                temp = 6 * 3600 * 1000
+              else if (this.playbackFrequency == '12hour')
+                temp = 12 * 3600 * 1000
+              else
+                temp = 24 * 3600 * 1000
+              
+              if (Math.floor(Math.abs(tempDiff / temp)) > 0 ) {
+                this.dateStart = new Date(dateStart + 180 * 60000 + (Math.floor(Math.abs(tempDiff / temp)) + 1) * temp) 
+              }
 
-              if (diff >= 0 && diff < 1000) {
-                this.dateStartPole = "В эфире"
-                if (this.status == 'Включен') { // on
+              setInterval(()=> {
+                const date = new Date()
+                const offset = date.getTimezoneOffset() 
+                const utc = date.getTime() + (offset * 60000)
+                
+                const now = new Date(utc + 180 * 60000)
+                let dateStart = this.dateStart
+                const diff = dateStart - now
+
+                if (diff >= 0 && diff < 1000) {
+                  this.dateStartPole = "В эфире"
                   if (this.isAdmin || this.isModer) {
                     let roomData = this.$store.state.roomData
                     if (roomData?.roomId !== this.webinarId) {
@@ -1104,40 +1253,35 @@ export default {
                   } else { 
                     this.start()
                   }
-                }
-                clearInterval()
-                return
-              } 
-              if (diff > 1000) {
-                if (this.status == 'Включен') {
+                  clearInterval()
+                  return
+                } 
+                if (diff > 1000) {
                   const hDiff = diff / 1000 / 3600
+                  const hDisplay = Math.floor(hDiff) < 10 ? ("0" + Math.floor(hDiff)) : Math.floor(hDiff)
                   const minDiff = (diff - Math.floor(hDiff) * 1000 * 3600) / 1000 / 60
+                  const minDisplay = Math.floor(minDiff) < 10 ? ("0" + Math.floor(minDiff)) : Math.floor(minDiff)
                   const secDiff = (diff - Math.floor(hDiff) * 1000 * 3600 - Math.floor(minDiff) * 60 * 1000) / 1000
                   const secDisplay = Math.floor(secDiff) < 10 ? ("0" + Math.floor(secDiff)) : Math.floor(secDiff)
-                  this.dateStartPole = "Начало через " + Math.floor(hDiff) + ":" + Math.floor(minDiff) + ":" + secDisplay         
+                  this.dateStartPole = "Начало через " + hDisplay + ":" + minDisplay + ":" + secDisplay
+                  return
                 }
-                return
-              }
-            }, 1000)
+              }, 1000)
 
-          }
-        } else {
-          setInterval(()=> {
-            const date = new Date()
-            const dbDate = new Date(this.dateStart)
-            const offset = date.getTimezoneOffset() 
-            const utc = date.getTime() + (offset * 60000)
-            const dbUtc = dbDate.getTime() + (offset* 60000)
+            }
+          } else {
+            this.enableWebinar(this.webinarId, 0, this.isAutoWebinar)
+            setInterval(()=> {
+              const date = new Date()
+              const dbDate = new Date(this.dateStart)
+              const offset = date.getTimezoneOffset() 
+              const now = date.getTime() + (offset * 60000)
+              const dateStart = dbDate.getTime() + (offset* 60000)
             
-            const now = new Date(utc + 180 * 60000)
-            const dateStart = new Date(dbUtc + 180 * 60000)
-           
-            const diff = dateStart - now
+              const diff = dateStart - now
 
-            if (diff >= 0 && diff < 1000) {
-              this.dateStartPole = "В эфире"
-              clearInterval()
-              if (this.status == 'Включен') { // on
+              if (diff >= 0 && diff < 1000) {
+                clearInterval()
                 if (this.isAdmin || this.isModer) {
                   let roomData = this.$store.state.roomData
                   if (roomData?.roomId !== this.webinarId) {
@@ -1148,28 +1292,44 @@ export default {
                     }
                     this.$store.commit('setRoomData', roomData);
                   }
-                  this.socket.send(JSON.stringify({
-                    action: "startStream",
-                    data: {
-                      isAutowebinar: isAutowebinar,
-                      chat: String(this.webinarId), // this.$route.params.id,
-                      playTime: roomData.playTime,
-                    }
-                  }))
+                  if (!this.isAutoWebinar) {
+                    this.dateStartPole = ""
+                  } else {
+                    this.dateStartPole = "В эфире"
+                    this.socket.send(JSON.stringify({
+                      action: "startStream",
+                      data: {
+                        isAutowebinar: isAutowebinar,
+                        chat: String(this.webinarId), // this.$route.params.id,
+                        playTime: roomData.playTime,
+                      }
+                    }))
+                  }
                   // await this.start()
+                } else {
+                  if (!this.isAutoWebinar) {
+                    this.dateStartPole = "Ожидание начала эфира от ведущего"
+                  } else {
+                    this.dateStartPole = "В эфире"
+                    this.start()
+                  }
                 }
-              }
-              return
-            } 
-            if (diff > 1000) {
+                return
+              } 
+              if (diff > 1000) {
                 const hDiff = diff / 1000 / 3600
+                const hDisplay = Math.floor(hDiff) < 10 ? ("0" + Math.floor(hDiff)) : Math.floor(hDiff)
                 const minDiff = (diff - Math.floor(hDiff) * 1000 * 3600) / 1000 / 60
+                const minDisplay = Math.floor(minDiff) < 10 ? ("0" + Math.floor(minDiff)) : Math.floor(minDiff)
                 const secDiff = (diff - Math.floor(hDiff) * 1000 * 3600 - Math.floor(minDiff) * 60 * 1000) / 1000
                 const secDisplay = Math.floor(secDiff) < 10 ? ("0" + Math.floor(secDiff)) : Math.floor(secDiff)
-                this.dateStartPole = "Начало через " + Math.floor(hDiff) + ":" + Math.floor(minDiff) + ":" + secDisplay 
-              return
-            }
-          }, 1000)
+                this.dateStartPole = "Начало через " + hDisplay + ":" + minDisplay + ":" + secDisplay  
+                return
+              }
+            }, 1000)
+          }
+        } else {
+          this.dateStartPole = "На данный момент вебинар недоступен"
         }
         
         socket.send(JSON.stringify({
@@ -1181,7 +1341,43 @@ export default {
         }))  
 
       }
-                  
+      
+      if (command.action == "showScreen") {
+        console.log(command.data.msg)
+        const msg = command.data.msg
+        this.isCenterLink = false
+        document.getElementById('rightMessage').style.display = 'flex'
+        if (msg.user.type === 'token') {
+          this.messageUserAvatar = this.authorAvatar
+        } else {
+          this.messageUserAvatar = ''
+        }
+
+        this.messageUsername = msg.user.auth.name
+        this.messageContent = msg.msg
+
+        if (command.data.status === 'pin' && this.comment) {
+          this.pinComment = this.comment
+        }
+
+        setTimeout(() => {
+          document.getElementById('rightMessage').style.display = 'none'
+        }, 30000);
+          
+      }
+
+      if (command.action == "pinMessage") {
+        console.log("pinMessage")
+        this.pinItems.pop()
+        this.pinItems.push(command.data.pinMessage)
+        console.log(this.pinItems)
+      }
+
+      if (command.action == "unpinMessage") {
+        console.log("unpinMessage")
+        this.pinItems.pop()
+        console.log(this.pinItems)
+      }
 
       if (command.action == "updateInfo") {
         if (!this.isAutoWebinar) {
@@ -1204,6 +1400,7 @@ export default {
             document.getElementById("linkSound").src = this.$config.staticURL + "/linkSound.mp3";
             document.getElementById("linkSound").play();
             this.isCenterLink = true
+            document.getElementById('rightMessage').style.display = 'none'
             console.log(command.data.user)
             this.centerLink = {
               username: command.data.user.name,
@@ -1243,8 +1440,9 @@ export default {
 
       if (command.action == 'startStream') {
         console.log("startStream")
+        this.isActive = 1
         this.playTime = command.data.playTime
-        this.status = 'Включен'
+        this.status = 1
         this.start()
         this.isBlockChatBeforeStart = false
       }
@@ -1434,6 +1632,14 @@ export default {
   },
   data() {
     return {
+      isActive: 0,
+      pinComment: '',
+      showContextMenu: '',
+      activeItem: '',
+      messageUserAvatar: '',
+      messageUsername: '',
+      messageContent: '',
+      pinItems: [],
       audioPlayerStatus: false,
       tooltipFlag: false,
       webinarData: '',
@@ -1543,14 +1749,15 @@ export default {
           )
 
           if (data) {
-            this.status = "Выключен"
+            this.status = status
           }
         }
       }
     },
     async updateWebinar() {
-      console.log(this.dateStart)
-      this.dateStart = new Date().toISOString().slice(0, 16)
+      const date = new Date();
+      date.setUTCHours(date.getUTCHours() + 3);
+      this.dateStart = date.toISOString().slice(0, 16)
       const res = await this.$axios.patch(
         `/webinars`
         ,
@@ -1570,7 +1777,7 @@ export default {
       return strLink.includes('http')
     },
     addAction(data) {
-
+      console.log("action===>", data)
       let action = data.action
       if (data.user.auth.id != 0) {
         action.username = data.user.auth.name 
@@ -1612,7 +1819,7 @@ export default {
         return ' '
     },
     deleteMessages() {
-      if ((this.isAdmin || this.isModer) && this.highlightedMessages.length) {
+      if ((this.isAdmin || this.isModer) && this.highlightedMessages.length && this.isActive) {
         this.socket.send(JSON.stringify({
           action: "deleteMessages",
           data: {
@@ -1626,7 +1833,7 @@ export default {
       }
     },
     deleteMessagesAndBanUser() {
-      if ((this.isAdmin || this.isModer) && this.highlightedMessages.length) {
+      if ((this.isAdmin || this.isModer) && this.highlightedMessages.length && this.isActive) {
         this.socket.send(JSON.stringify({
           action: "deleteMessagesAndBanUser",
           data: {
@@ -1640,7 +1847,7 @@ export default {
       }
     },
     ignoreUser() {
-      if ((this.isAdmin || this.isModer) && this.highlightedMessages.length) {
+      if ((this.isAdmin || this.isModer) && this.highlightedMessages.length && this.isActive) {
         this.socket.send(JSON.stringify({
           action: "ignoreUser",
           data: {
@@ -1654,7 +1861,7 @@ export default {
       }
     },
     enableChatLinks() {
-      if (this.isAdmin || this.isModer) {
+      if ((this.isAdmin || this.isModer) && this.isActive) {
         this.socket.send(JSON.stringify({
           action: "allowChatLinks",
           data: {
@@ -1666,7 +1873,7 @@ export default {
       }
     },
     disableChatLinks() {
-      if (this.isAdmin || this.isModer) {
+      if ((this.isAdmin || this.isModer) && this.isActive) {
         this.socket.send(JSON.stringify({
           action: "disallowChatLinks",
           data: {
@@ -1678,7 +1885,7 @@ export default {
       }
     },
     clearChat() {
-      if (this.isAdmin || this.isModer) {
+      if ((this.isAdmin || this.isModer) && this.isActive) {
         this.socket.send(JSON.stringify({
           action: "clearChat",
           data: {
@@ -1686,6 +1893,7 @@ export default {
             chat: String(this.webinarId),
           }
         }))
+        this.highlightedMessages = []
         this.$forceUpdate()
       }
     },
@@ -1697,20 +1905,71 @@ export default {
         )
       })
     },
-    highlightMessage(message) {
-      const candidateIdx = this.highlightedMessages.findIndex((m) => {
-        return (
-          m.msg === message.msg
-          && JSON.stringify(m.user) === JSON.stringify(message.user)
-        )
-      })
-
-      if (candidateIdx !== -1) {
-        this.highlightedMessages.splice(candidateIdx, 1)
-        return
+    showMenu(id) {
+      if ((this.isAdmin || this.isModer) && this.isActive) {
+        this.showContextMenu = true;
+        this.activeItem = id;
       }
+    },
+    outsideMenu() {
+      this.showContentMenu = false
+      this.activeItem = ''
+    },
+    showScreen(message, status) {
+      if (this.isAdmin || this.isModer) {
+        this.showContextMenu = false;
+        this.socket.send(JSON.stringify({
+          action: "showScreen",
+          data: {
+            message: message,
+            isAutowebinar: isAutowebinar,
+            chat: String(this.webinarId),
+            status: status,
+          }
+        }))
+      }
+    },
+    pinMessage(message) {
+      if (this.isAdmin || this.isModer) {
+        this.showContextMenu = false;
+        this.socket.send(JSON.stringify({
+          action: "pinMessage",
+          data: {
+            message: message,
+            isAutowebinar: isAutowebinar,
+            chat: String(this.webinarId)
+          }
+        }))
+      }
+    },
+    unpinMessage() {
+      if (this.isAdmin || this.isModer) {
+        this.showContextMenu = false;
+        this.socket.send(JSON.stringify({
+          action: "unpinMessage",
+          data: {
+            isAutowebinar: isAutowebinar,
+            chat: String(this.webinarId)
+          }
+        }))
+      }
+    },
+    highlightMessage(message) {
+      if ((this.isAdmin || this.isModer) && this.isActive) {
+        const candidateIdx = this.highlightedMessages.findIndex((m) => {
+          return (
+            m.msg === message.msg
+            && JSON.stringify(m.user) === JSON.stringify(message.user)
+          )
+        })
 
-      this.highlightedMessages.push(message)
+        if (candidateIdx !== -1) {
+          this.highlightedMessages.splice(candidateIdx, 1)
+          return
+        }
+
+        this.highlightedMessages.push(message)
+      }
     },
     calcChatHeight() {
       // const linksLength = this.items.filter((elem) => elem.user.type === 'link').length;
@@ -1810,7 +2069,9 @@ export default {
       this.addLinkModalOpen = true
     },
     openClearChatModal() {
-      this.clearChatModalOpen = true
+      if (this.isActive) {
+        this.clearChatModalOpen = true
+      }
     },
     closeBagMoneyWaitModal() {
       this.bagMoneyWaitModalOpen = false
@@ -1971,6 +2232,7 @@ export default {
         || this.msg.trim() === ''
         || this.iBanned
         || this.isBlockChat
+        || !this.isActive
       ) {
         return
       }
@@ -2009,6 +2271,7 @@ export default {
     },
     async start({ preview = false } = {}) {
       console.log("start")
+      this.enableWebinar(this.webinarId, 1, this.isAutoWebinar)
       this.dateStartPole = "В эфире"
       if (this.screensaverAudio) {
         if (this.audioPlayerStatus) {
@@ -2033,22 +2296,32 @@ export default {
       // }
       
       let playTime = this.playTime ? this.playTime : moment().tz('Europe/Moscow')
-      const date = new Date()
-      const dbDate = new Date(playTime)
-      const offset = date.getTimezoneOffset() 
-      const utc = date.getTime() + (offset * 60000)
-      const dbUtc = dbDate.getTime() + (offset* 60000)
+      var startTime = 0
+      console.log("playTimeeeeeeeeeeeeeeee", playTime)
+      let date = new Date()
+      let dbDate = new Date(playTime)
+      let offset = date.getTimezoneOffset() 
+      let now = date.getTime() + (offset * 60000)
+      let playTimeTemp = dbDate.getTime() + (offset * 60000)
 
-      const now = new Date(utc + 180 * 60000)
-      const playTimeTemp = new Date(dbUtc + 180 * 6000)
-
-      console.log("playTime", playTime)
-
-      const curTime = moment().tz('Europe/Moscow')
       let diffTime = 0
-      if (curTime.diff(playTime)) {
-        diffTime = parseInt(curTime.diff(playTime) / 1000)
+      console.log("utc========", date)
+      console.log("dbUtc========", dbDate)
+      if (playTimeTemp < now) {
+        diffTime = Math.floor((now - playTimeTemp) / 1000)
       }
+
+      console.log("diffffffffffffffffff", diffTime)
+
+      if (!this.isAutoWebinar) {
+        if (diffTime > 60) {
+          startTime = diffTime
+        } else {
+          startTime = 0
+        }
+      }
+      localStorage.setItem('isAutoWebinar', this.isAutoWebinar)
+      localStorage.setItem('diff', diffTime)
 
       // if (this.player) {
       //   this.player.loadVideoById({
@@ -2084,12 +2357,13 @@ export default {
       //     'onError': onPlayerError
       //   }
       // });
-
+      
       this.player = new YT.Player('ytplayer', {
         height: '100%',
         width: '100%',
         cc_load_policy: 1,
         playerVars: {
+          start: startTime,
           playsinline: 1,
           enablejsapi: 1,
           origin: window.location.href,
@@ -2114,18 +2388,29 @@ export default {
       });
 
       function onPlayerReady(event) {
-        console.log("event", event)
-        // if (this.isAdmin || this.isModer) {
-        //   this.socket.send(JSON.stringify({
-        //     action: "setStartTime",
-        //     data: {
-        //       chat: String(this.webinarId), // secret   this.$route.params.id
-        //       isAutowebinar: isAutowebinar,
-        //       startTime: moment().tz('Europe/Moscow'),
-        //     }
-        //   }))
-        // }
-        event.target.playVideo();
+        console.log(event.target.getDuration())
+        var isAutoWebinar = localStorage.getItem('isAutoWebinar')
+        var startTime = 0
+        var diffTime = localStorage.getItem('diff')
+        if (!isAutoWebinar) {
+          if (diffTime > 60) {
+            if (startTime > event.target.getDuration()) {
+              document.getElementById("player__overlay").style.display = "block";
+              document.getElementById("player__overlay").style.zIndex = 9990;
+              document.getElementById("pole").style.zIndex = 9991;
+              this.dateStartPole = "Видео закончилось"
+            } else {
+              event.target.seekTo(startTime, true);
+              event.target.playVideo();
+            }
+          } else {
+            startTime = 0
+            event.target.playVideo();
+          }
+        } else {
+          event.target.playVideo();
+        }
+        
         setTimeout(() => {
           // document.getElementById("black").style.opacity = "0"
           document.getElementById("black").remove()
@@ -2191,7 +2476,8 @@ export default {
     },
     async leave() {
       if (this.isAdmin || this.isModer) {
-        this.$router.go(-1)
+        console.log("close")
+        window.close()
       } else {
         window.location.href= this.redirectOut
       }
@@ -2240,7 +2526,7 @@ export default {
             return
           } 
           if (diff > 1000) {
-            if (this.status == 'Включен') {
+            if (this.status == 1) {
               const hDiff = diff / 1000 / 3600
               const minDiff = (diff - Math.floor(hDiff) * 1000 * 3600) / 1000 / 60
               const secDiff = (diff - Math.floor(hDiff) * 1000 * 3600 - Math.floor(minDiff) * 60 * 1000) / 1000
@@ -2355,22 +2641,26 @@ export default {
       // window.close()
     },
     blockChat(){
-      this.socket.send(JSON.stringify({
-        action: "chatBlock",
-        data: {
-          isAutowebinar: isAutowebinar,
-          chat: String(this.webinarId), // this.$route.params.id,
-        }
-      }))
+      if (this.isActive) {
+        this.socket.send(JSON.stringify({
+          action: "chatBlock",
+          data: {
+            isAutowebinar: isAutowebinar,
+            chat: String(this.webinarId), // this.$route.params.id,
+          }
+        }))
+      }
     },
     unBlockChat(){
-      this.socket.send(JSON.stringify({
-        action: "chatUnBlock",
-        data: {
-          isAutowebinar: isAutowebinar,
-          chat: String(this.webinarId),
-        }
-      }))
+      if (this.isActive) {
+        this.socket.send(JSON.stringify({
+          action: "chatUnBlock",
+          data: {
+            isAutowebinar: isAutowebinar,
+            chat: String(this.webinarId),
+          }
+        }))
+      }
     },
     banUser(){
       if ((this.isAdmin || this.isModer) && this.highlightedMessages.length) {
@@ -2458,6 +2748,104 @@ export default {
 </script>
 
 <style scoped>
+.screenContent {
+  display: flex;
+  width: 100%;
+}
+.pinContent {
+  display: flex;
+  width: 100%;
+}
+.comment {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  font-size: 10px;
+}
+.customLine {
+  margin-top: 5px;
+  border: 1px solid gray;
+}
+.contextMenu {
+  position: absolute; 
+  width: 100%; 
+  height: 100%; 
+  display: flex; 
+  justify-content: center; 
+  background: rgba(255, 255, 255, 0.5);
+  z-index: 999;
+}
+.contextMenuContent {
+  width: 70%;
+  height: 100%;
+  /* border: 1px solid gray; */
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 3px;
+}
+.menuBtn {
+  width: 155px;
+  min-width: 155px;
+  font-size: 14px;
+  background-color: #2A5885;
+  padding: 0 10px;
+  color: white;
+}
+.descriptionBlack {
+  color: black !important;
+  cursor: default !important;
+}
+
+#rightMessage {
+  display: none;
+  position: absolute;
+  bottom: 50px;
+  left: 30%;
+  width: 45%;
+  height: 80px;
+  background: #fff;
+  border-radius: 7px;
+  border: 1px solid #a39494;
+  justify-content: flex-start;
+  cursor: pointer;
+  padding: 10px 10px 5px;
+}
+
+.messageUserAvatar {
+  width: 47px;
+  margin-left: 20px;
+  margin-right: 10px;
+}
+
+.messageDiv {
+  width: 100%; 
+  display: flex; 
+  flex-direction: column; 
+  justify-content: flex-start; 
+}
+
+.messageUser {
+  font-family: 'Roboto';
+  color: black;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.messageContent {
+  margin-left: 10px;
+    padding-left: 10px;
+    font-family: 'Roboto';
+    color: black;
+    font-size: 14px;
+    font-weight: 400;
+    height: 30px;
+    border-left: 2px solid #ff7700;
+    display: flex;
+    align-items: center;
+}
 
 .authDescription {
   position: absolute;
@@ -2495,7 +2883,7 @@ export default {
 .room-parent {
   width: 100%;
   height: 90vh;
-  padding: 20px 50px 0 30px;
+  padding: 5px 50px 0 30px;
 }
 
 .header-wrapper {
@@ -2947,12 +3335,11 @@ span {
 }
 
 .webinar__chat__guest {
-  height: 7%;
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
-  padding: 15px;
+  padding: 0 15px;
 }
 
 .guest {
@@ -2981,9 +3368,6 @@ span {
 }
 
 .webinar__chat__guest {
-  background: rgba(255, 255, 255, 0.2);
-  box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.5);
-  border-radius: 10px;
   color: black;
 }
 
@@ -2999,7 +3383,8 @@ span {
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
-  height: 69vh;
+  height: 75vh;
+  /* flex-grow: 1; */
   position: relative;
 }
 
@@ -3010,7 +3395,7 @@ span {
 .webinar__chat__user {
   display: flex;
   border-radius: 15px;
-  padding: 15px;
+  padding: 5px;
   background: rgba(255, 255, 255, 0.2);
   box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.5);
   color: wheat;
@@ -3089,9 +3474,9 @@ span {
     width: 100%;
   }
 
-  .webinar__chat__chat {
+  /* .webinar__chat__chat {
     height: 60vh;
-  }
+  } */
 }
 
 
@@ -3119,7 +3504,7 @@ span {
   }
 
   .webinar__chat__chat {
-    height: 60vh;
+    height: 65vh;
   }
 }
 

@@ -34,23 +34,14 @@
         </div>
         <div class="save__webinar">
           <div class="webinar__save">
-            <img src="../static/svg/save.svg" alt="">
-            <p class="webinar__title">Сохраненные вебинары</p>
-            <input @change="handlePDFUpload" type="file" id="pdfUpload" ref="pdfFile" accept="application/pdf" style="display: none;" />
-            <button @click="selectPDF" class="select-pdf">Выберите PDF-файл</button>
-          </div>
-          <div class="webinar-filter-wrapper">
-            <div class="type-check-wrapper">
-              <div>
-                <div @click="clickCheckWebinar" :class="['chkbox__background__icon', filters.chxWebinar ? 'chkbox__background__icon_on' : 'chkbox__background__icon_off' ]"></div>
-                <p>Живой вебинар</p>
-              </div>
-              <div>
-                <div @click="clickCheckAutowebinar" :class="['chkbox__background__icon', filters.chxAutowebinar ? 'chkbox__background__icon_on' : 'chkbox__background__icon_off' ]"></div>
-                <p>Автовебинар</p>
-              </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <img src="../static/svg/save.svg" alt="">
+              <p class="webinar__title">Вебинары и автовебинары</p>
             </div>
+            
             <div class="webinar-filter">
+              <input @change="handlePDFUpload" type="file" id="pdfUpload" ref="pdfFile" accept="application/pdf" style="display: none;" />
+              <button @click="selectPDF" class="select-pdf">Выберите PDF-файл</button>
               <div class="webinar__none__date">
                 <button @click="hideShowAllDates">{{ (hideAllDates) ? 'Показать даты' : 'Скрыть даты' }}</button>
               </div>
@@ -76,6 +67,18 @@
                     </button>
                   </li>
                 </ul>
+              </div>
+            </div>
+          </div>
+          <div class="webinar-filter-wrapper">
+            <div class="type-check-wrapper">
+              <div>
+                <div @click="clickCheckWebinar" :class="['chkbox__background__icon', filters.chxWebinar ? 'chkbox__background__icon_on' : 'chkbox__background__icon_off' ]"></div>
+                <p>Живой вебинар</p>
+              </div>
+              <div>
+                <div @click="clickCheckAutowebinar" :class="['chkbox__background__icon', filters.chxAutowebinar ? 'chkbox__background__icon_on' : 'chkbox__background__icon_off' ]"></div>
+                <p>Автовебинар</p>
               </div>
             </div>
           </div>
@@ -134,7 +137,7 @@
                   <div class="stat__icon">
                     <img src="../static/svg/majesticons_chat-status-line.svg" alt="">
                     <p class="stat__title">
-                      Статус: <span :class="webinar.status === 'Включен' ? 'green--text' : 'red--text'">{{ webinar.status }}</span>
+                      Статус: <span :class="webinar.isActive ? 'green--text' : 'red--text'">{{ webinar.isActive ? webinarStatuses.enable : webinarStatuses.disable }}</span>
                     </p>
                   </div>
                   <div class="stat__icon">
@@ -143,7 +146,7 @@
                   </div>
                   <div class="stat__icon">
                     <img src="../static/svg/material-symbols_supervised-user-circle.svg" alt="">
-                    <p class="stat__title">Посетителей: 0</p>
+                    <p class="stat__title">Посетителей: {{ webinar.userCount }}</p>
                   </div>
                   <div class="stat__icon" v-if="!hideAllDates">
                     <img src="../static/svg/majesticons_rocket-3-start-line.svg" alt="">
@@ -160,17 +163,17 @@
                     <span class="tooltip-text1" id="fade">Редактировать</span>
                   </button>
                   <button
-                    :class="webinar.status === webinarStatuses.enable ? 'hover-text': 'hover-text enable-btn'"
+                    :class="webinar.isActive ? 'hover-text': 'hover-text enable-btn'"
                     @click="enableWebinar(
                       webinar.id,
-                      webinar.status === webinarStatuses.enable ? webinarStatuses.disable : webinarStatuses.enable,
+                      webinar.isActive ? 0 : 1,
                       webinar.autowebinar
                       )">
                     <img src="../static/svg/image 73.svg" alt="">
                     <span
                       class="tooltip-text"
                       id="fade">{{
-                        webinar.status === webinarStatuses.enable ? 'Выключить' : 'Включить'
+                        webinar.isActive ? 'Выключить' : 'Включить'
                       }}
                     </span>
                   </button>
@@ -312,13 +315,13 @@ export default {
 
       await this.$router.push(`/edit-webinar/1`)
     },
-    async enableWebinar(webinarId, status, isAutowebinar) {
+    async enableWebinar(webinarId, isActive, isAutowebinar) {
       const idx = this.webinars.findIndex((webinar) => (webinar.id === webinarId && webinar.autowebinar == isAutowebinar))
       let sendData = this.webinars[idx];
       const data = await this.$axios.$patch(
         `/webinars`, {
           id: sendData.id,
-          status: status,
+          isActive: isActive,
           userId: localStorage.getItem('userId'),
           title: sendData.title,
           isAutowebinar: isAutowebinar,
@@ -334,7 +337,7 @@ export default {
           ...this.webinars.slice(0, idx),
           {
             ...this.webinars[idx],
-            status: data.status
+            isActive: data.isActive
           },
           ...this.webinars.slice(idx + 1)
         ]
@@ -546,6 +549,8 @@ console.log(isAutowebinar)
 
 .webinar-filter {
   display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .dropdown-btn {
@@ -717,7 +722,6 @@ input {
   font-size: 20px;
   line-height: 24px;
   margin-bottom: 0;
-  margin-left: 10px;
 }
 .content__createwebinar {
   display: flex;
@@ -736,6 +740,7 @@ input {
   border-radius: 10px;
   width: 100%;
   padding: 10px 0 10px 30px;
+  gap: 10px;
 }
 .webinar__autowebinars {
   display: flex;
@@ -825,7 +830,10 @@ input {
 }
 .webinar__save {
   display: flex;
+  width: 100%;
+  justify-content: space-between;
   align-items: center;
+  gap: 10px;
 }
 .webinar__none__date > button {
   padding: 10px 10px;

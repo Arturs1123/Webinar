@@ -7,32 +7,49 @@ module.exports = class BroadcastRepository {
     async createAutowebinarByWebinarId(webinarId, duration, playTime) {
 
         const res = await this.mysqlDriver.execute(`
-            SELECT * 
+            SELECT *
             FROM webinar 
             WHERE id = ${webinarId}
             `)
-        console.log(res)
         let broadcastData = res[0][0]
         delete broadcastData.id 
         delete broadcastData.lastTimeViewer
+        var date = new Date()
+        var month = date.getMonth() < 9 ? ('0' + (date.getMonth() + 1)) : (date.getMonth() + 1)
+        var hour = date.getHours() < 10 ? ('0' + date.getHours()) : date.getHours()
+        var minutes = date.getMinutes() < 10 ? ('0' + date.getMinutes()) : date.getMinutes()
+        broadcastData.dateStart = date.getFullYear() + '-' + month + '-' + date.getDate() + ' ' + hour + ':' + minutes;
         broadcastData.duration = duration
+        broadcastData.dateCreated = date.getFullYear() + '-' + month + '-' + date.getDate() + ' ' + hour + ':' + minutes;
         const res1 = await this.mysqlDriver.execute(`
         INSERT INTO broadcast
             (${Object.keys(broadcastData).join(', ')})
         VALUES 
             (${Object.entries(broadcastData)
-            .map(([k, v]) => k.startsWith('date') ? `STR_TO_DATE(?, '%Y-%m-%d %H:%i')` : `?`)
-            .join(', ')
-        })
-        `, Object.values(broadcastData))
-            console.log("insertData=========>", res1);
+                .map(([k, v]) => k.startsWith('date') ? 'STR_TO_DATE(?, "%Y-%m-%d %H:%i")' : '?')
+                .join(', ')
+            })
+        `, Object.values(broadcastData));
+        
+        console.log("insertData=========>", `
+        INSERT INTO broadcast
+            (${Object.keys(broadcastData).join(', ')})
+        VALUES 
+            (${Object.entries(broadcastData)
+                .map(([k, v]) => k.startsWith('date') ? 'STR_TO_DATE(?, "%Y-%m-%d %H:%i")' : '?')
+                .join(', ')
+            });
+        `, Object.values(broadcastData).map((value) => value === null ? '' : value));
+        
+        console.log(res1)
+        
         const broadcastId = res1[0]?.insertId
+        
         const resChat = await this.mysqlDriver.execute(`
         SELECT *
         FROM chat
         WHERE webinarId = '${webinarId}' 
         `)
-
         for (let i = 0; i < resChat[0].length; i++) {
             const row = resChat[0][i]
             const data = JSON.parse(row.data)
@@ -69,8 +86,13 @@ module.exports = class BroadcastRepository {
         let broadcastData = res[0][0]
         delete broadcastData.id 
         delete broadcastData.lastTimeViewer
+        var date = new Date()
+        var month = date.getMonth() < 9 ? ('0' + (date.getMonth() + 1)) : (date.getMonth() + 1)
+        var hour = date.getHours() < 10 ? ('0' + date.getHours()) : date.getHours()
+        var minutes = date.getMinutes() < 10 ? ('0' + date.getMinutes()) : date.getMinutes()
+        broadcastData.dateStart = date.getFullYear() + '-' + month + '-' + date.getDate() + ' ' + hour + ':' + minutes;
         broadcastData.duration = duration
-        broadcastData.dateStart = playTime
+        broadcastData.dateCreated = date.getFullYear() + '-' + month + '-' + date.getDate() + ' ' + hour + ':' + minutes;
         const res1 = await this.mysqlDriver.execute(`
         INSERT INTO broadcast
             (${Object.keys(broadcastData).join(', ')})
@@ -112,6 +134,7 @@ module.exports = class BroadcastRepository {
     }
 
     async createBroadcast(broadcastData){
+        console.log(broadcastData)
         const res = await this.mysqlDriver.execute(`
         INSERT INTO broadcast
             (${Object.keys(broadcastData).join(', ')})
@@ -121,6 +144,8 @@ module.exports = class BroadcastRepository {
             .join(', ')
         });
         `, Object.values(broadcastData))
+
+        console.log("res===>", res)
 
         return res[0]?.insertId
     }

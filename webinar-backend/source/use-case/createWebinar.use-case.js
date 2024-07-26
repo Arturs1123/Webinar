@@ -17,7 +17,7 @@ class CreateWebinarUseCase {
         webinar.dateCreated = webinar.dateCreated.replace('T', ' ')
         delete webinar.isAutowebinar
         if (isAutowebinar == 1) {
-            webinar.status = 'Включен'
+            webinar.status = 1
             insertId = await this.broadcastRepository.createBroadcast(webinar)
         } else {
             insertId = await this.webinarRepository.createWebinar(webinar)
