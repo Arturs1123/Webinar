@@ -22,7 +22,7 @@
                 <button style="border-radius: 7px;" class="form__button__sign" @click="">Вход на Мастер-Класс</button>
               </div>
               <div class="sektet__forms">
-                <p class="sekret__title">Тема: {{ title }}</p>
+                <p class="sekret__title">{{ title }}</p>
               </div>
               <div class="author__info">
                 <p style="margin-left: 30px; margin-right: 30px" class="author__title">Ведущий</p>
@@ -326,6 +326,12 @@ export default {
 </script>
 
 <style scoped>
+
+.sektet__forms {
+  display: flex;
+  justify-content: center;
+}
+
 .author__info {
   /* display: flex;
   justify-content: flex-start;

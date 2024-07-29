@@ -195,66 +195,67 @@
                   :link="items.filter((elem) => elem.user.type === 'link').at(-1)"
                   v-on:add-action="addActionWS(JSON.parse($event))"
                 /> -->
+                <div v-if="isCenterLink" class="room_action_notification__container"  @click="clickCenterLink({ type: 'clickLink', msg: centerLink.msg, })">
+                  <div class="action_notification__icon">
+                    <img src="../static/svg/action-click-link-icon.svg" alt="">
+                  </div>
+                  <div style="width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px;">
+                    <div>
+                      <span class="action_notification__name">
+                        {{ cutString(centerLink.username, 25) }}
+                      </span>
+                    </div>
+                    <div class="action_notification__msg_container">
+                      <span class="action_notification__msg" :style="{'background-color': centerLink.color}">
+                        <!-- {{ cutString(actionTypes[action?.type].split(' ').slice(0, 2).join(' '), 39) }} -->
+                        <NuxtLink
+                          is="a"
+                          :to="centerLink.msg" 
+                          :href="centerLink.msg"
+                          target="_blank" 
+                        >
+                        <!-- action?.msg -->
+                        <!-- action?.msg -->
+                          <!-- {{ actionTypes[action?.type].split(' ').slice(2).join(' ') }} -->
+                          {{ cutString(centerLink.msg, 30) }}
+                        </NuxtLink>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div id="rightMessage">
+                  <div class="screenContent">
+                    <div class="messageUserAvatar">
+                      <v-avatar size="40" style="margin-left: 5px; margin-right: 10px" color="blue">
+                        <v-img
+                          :src="messageUserAvatar"
+                          alt="Фото не загружено"
+                        ></v-img>
+                      </v-avatar>
+                    </div>
+                    <div class="messageDiv">
+                      <div class="messageUser">
+                        {{ cutString(messageUsername, 20) }}
+                      </div>
+                      <div class="messageContent">
+                        <div v-if="!isLink(messageContent)">{{ cutString(messageContent, 30) }}</div>
+                        <div v-else>
+                          <a :href="messageContent" target="_blank">{{ messageContent }}</a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div v-if="pinComment" class="comment">
+                    {{ pinComment }}
+                  </div>
+                </div>
               </div>
 
               <div style="display: flex; justify-content: center; align-items: center" v-if="screensaverAudio">
                 <audio controls id="screensaverAudio" src=""></audio>
               </div>
               <audio controls id="linkSound" style="display:none" src=""></audio>
-              <div v-if="isCenterLink" class="room_action_notification__container"  @click="clickCenterLink({ type: 'clickLink', msg: centerLink.msg, })">
-                <div class="action_notification__icon">
-                  <img src="../static/svg/action-click-link-icon.svg" alt="">
-                </div>
-                <div style="width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px;">
-                  <div>
-                    <span class="action_notification__name">
-                      {{ cutString(centerLink.username, 25) }}
-                    </span>
-                  </div>
-                  <div class="action_notification__msg_container">
-                    <span class="action_notification__msg" :style="{'background-color': centerLink.color}">
-                      <!-- {{ cutString(actionTypes[action?.type].split(' ').slice(0, 2).join(' '), 39) }} -->
-                      <NuxtLink
-                        is="a"
-                        :to="centerLink.msg" 
-                        :href="centerLink.msg"
-                        target="_blank" 
-                      >
-                      <!-- action?.msg -->
-                      <!-- action?.msg -->
-                        <!-- {{ actionTypes[action?.type].split(' ').slice(2).join(' ') }} -->
-                        {{ cutString(centerLink.msg, 30) }}
-                      </NuxtLink>
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div id="rightMessage">
-                <div class="screenContent">
-                  <div class="messageUserAvatar">
-                    <v-avatar size="40" style="margin-left: 5px; margin-right: 10px" color="blue">
-                      <v-img
-                        :src="messageUserAvatar"
-                        alt="Фото не загружено"
-                      ></v-img>
-                    </v-avatar>
-                  </div>
-                  <div class="messageDiv">
-                    <div class="messageUser">
-                      {{ cutString(messageUsername, 20) }}
-                    </div>
-                    <div class="messageContent">
-                      <div v-if="!isLink(messageContent)">{{ cutString(messageContent, 30) }}</div>
-                      <div v-else>
-                        <a :href="messageContent" target="_blank">{{ messageContent }}</a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div v-if="pinComment" class="pinComment">
-                  <p>{{ pinComment }}</p>
-                </div>
-              </div>
+              
               <!-- <div class="video-bottom">
                 <button class="buttons__addchat btn-addchat-small" @click="openAddLinkModal">Добавить ссылку в чат</button>
               </div> -->
@@ -273,21 +274,19 @@
                   ></v-img>
                 </v-avatar>
                 <div class="webinar__chat__title">
-                  <div class="img">
-                    <img src="../static/svg/corona.svg" alt="">
-                  </div>
                   <div class="subtitle">
-                    <p class="add" style="position: relative; color: black">Ведущий: 
-                      <span 
-                        @mouseover="tooltipFlag = true"
-                        @mouseleave="tooltipFlag = false"
-                        v-click-outside="tooltipClose"
-                        style="cursor: pointer; color: #0077FF"  
-                        v-bind:class = "{'descriptionBlack' : !this.userDescription }"
-                      >
-                        {{ authorName }}
-                      </span>
-                    </p>
+                      <p class="add" style="position: relative; color: black">Ведущий: 
+                        <span 
+                          @mouseover="tooltipFlag = true"
+                          @mouseleave="tooltipFlag = false"
+                          v-click-outside="tooltipClose"
+                          style="cursor: pointer; color: #0077FF; "  
+                          v-bind:class = "{'descriptionBlack' : !this.userDescription }"
+                        >
+                          {{ authorName }}
+                          <img style="margin-top: -5px;" src="../static/svg/corona.svg" alt="">
+                        </span>
+                      </p>
                     <div class="authDescription" v-if="tooltipFlag && userDescription">
                       {{ userDescription }}
                     </div>
@@ -376,7 +375,8 @@
                         :style="{
                         'font-size': '20px', width: '100%',
                         'overflow-wrap': 'break-word', color: 'white',
-                        'margin-top': '5px', 'background-color': link.colorLink
+                        'margin-top': '5px', 'background-color': link.colorLink,
+                        'color': 'white'
                       }" target="_blank"
                       >
                         <div style="height: 25px">
@@ -431,7 +431,14 @@
                           </p>
                           <p style="line-height: 10px; font-size: 10px; color: rgb(73,71,71)">{{ getMessageTime(item.user.timestamp) }}</p>
                         </div>
-                        <p style="width: 90%; overflow-wrap: break-word;">{{ item.msg }}</p>
+                        <p v-if="!isLink(item.msg)" style="width: 90%; overflow-wrap: break-word;">{{ item.msg }}</p>
+                        <div v-else >
+                          <p>{{ item.user.name }}</p>
+                          <p :style="{ 'display': 'inline-block', 'padding-left': '5px', 'padding-right': '5px', 'border-radius': '3px', 'overflow-wrap': 'break-word', 'background-color': item.user.color }">
+                            <a v-if="item.user.color" :href="item.msg" style="color: white;" target="_blank" @click="addActionWS({ type: 'clickLink', msg: item.msg, })">{{ item.msg }}</a>
+                            <a v-else :href="item.msg" style="color: black;" target="_blank" @click="addActionWS({ type: 'clickLink', msg: item.msg, })">{{ item.msg }}</a>
+                          </p>
+                        </div>
                       </div>
                       <div v-if="showContextMenu && activeItem === ('ghoste' + index)" v-click-outside="outsideMenu" class="contextMenu" >
                         <div class="contextMenuContent">
@@ -476,7 +483,8 @@
                         <div v-else >
                           <p>{{ item.user.name }}</p>
                           <p :style="{ 'display': 'inline-block', 'padding-left': '5px', 'padding-right': '5px', 'border-radius': '3px', 'overflow-wrap': 'break-word', 'background-color': item.user.color }">
-                            <a :href="item.msg" target="_blank" >{{ item.msg }}</a>
+                            <a v-if="item.user.color" :href="item.msg" style="color: white;" target="_blank" @click="addActionWS({ type: 'clickLink', msg: item.msg, })">{{ item.msg }}</a>
+                            <a v-else :href="item.msg" style="color: black;" target="_blank" @click="addActionWS({ type: 'clickLink', msg: item.msg, })">{{ item.msg }}</a>
                           </p>
                         </div>
                       </div>
@@ -504,9 +512,9 @@
                 
                 <!-- sss -->
                 <div>
-                  <div class="customLine"></div>
+                  <div v-if="pinItems.length !== 0" class="customLine"></div>
                   <div v-for="(item, index) in pinItems" style="font-family: 'Roboto'; width: 100%;"> <!-- .filter((elem) => elem.user.type === 'message') -->
-                    <div v-if="item?.user?.type == 'ghoste'"  class="form__author" :style="{
+                    <div v-if="item?.user?.type == 'ghoste'"  class="form__author__custom" :style="{
                         'position': 'relative',
                         width: '100%',
                         'margin-top': '5px',
@@ -517,24 +525,48 @@
                       }"
                     >
                       <div class="pinContent">
-                        <v-avatar size="40" style="margin-left: 5px; margin-right: 10px" color="blue">
+                        <v-avatar size="40" color="blue">
                           <!-- {{ item.user.data[0] }} User -->
                         </v-avatar>
                         <div 
                           style="width: 90%; " 
                           @contextmenu.prevent="showMenu('pin' + index)"
                         >
-                          <div style="display: flex; justify-content: flex-start; align-items: center">
-                            <p class="author__name" style="font-weight: 900; display: inline-block; margin-right: 10px">
-                              {{ item.user.auth.login }} <!-- {{ item.user.data }} -->
-                            </p>
-                            <p style="line-height: 10px; font-size: 10px; color: rgb(73,71,71)">{{ getMessageTime(item.user.timestamp) }}</p>
+                          <div style="display: flex; justify-content: space-between; align-items: center">
+                            <div style="display: flex; gap: 10px; justify-content: flex-start; align-items: center;">
+                              <p class="author__name" style="font-weight: 900; display: inline-block; ">
+                                {{ item.user.auth.login }} <!-- {{ item.user.data }} -->
+                              </p>
+                              <p 
+                                style="line-height: 10px; 
+                                  font-size: 10px; 
+                                  color: rgb(73,71,71)"
+                              >
+                                {{ getMessageTime(item.user.timestamp) }}
+                              </p>
+                            </div>
+                            <div>
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+                                <path 
+                                  fill="#dac212"
+                                  fill-rule="evenodd" 
+                                  d="M10 1.2V2l.5 1L6 6H2.2c-.44 0-.67.53-.34.86L5 10l-4 5 5-4 3.14 3.14a.5.5 0 0 0 .86-.34V10l3-4.5 1 .5h.8c.44 0 .67-.53.34-.86L10.86.86a.5.5 0 0 0-.86.34z"
+                                />
+                              </svg>
+                            </div>
                           </div>
-                          <p style="width: 90%; overflow-wrap: break-word;">{{ item.msg }}</p>
+                          <p v-if="!isLink(item.msg)" style="width: 90%; overflow-wrap: break-word;">{{ item.msg }}</p>
+                          <div v-else >
+                            <p>{{ item.user.name }}</p>
+                            <p :style="{ 'display': 'inline-block', 'padding-left': '5px', 'padding-right': '5px', 'border-radius': '3px', 'overflow-wrap': 'break-word', 'background-color': item.user.color }">
+                              <a v-if="item.user.color" :href="item.msg" style="color: white;" target="_blank" @click="addActionWS({ type: 'clickLink', msg: item.msg, })">{{ item.msg }}</a>
+                              <a v-else :href="item.msg" style="color: black;" target="_blank" @click="addActionWS({ type: 'clickLink', msg: item.msg, })">{{ item.msg }}</a>
+                            </p>
+                          </div>
                         </div>
                       </div>
                       <div class="comment">
-                        {{ comment }}
+                        Сообщение закреплено
                       </div>
                       <div v-if="showContextMenu && activeItem === ('pin' + index)" v-click-outside="outsideMenu" class="contextMenu" >
                         <div class="contextMenuContent">
@@ -544,10 +576,10 @@
                       </div>
                     </div>
                     <!-- v....else....if="item?.user?.auth?.id == webinar.userId"  -->
-                    <div  v-else-if="item?.user?.type == 'token'" class="form__author" :style="{
+                    <div  v-else-if="item?.user?.type == 'token'" class="form__author__custom" :style="{
                         'position': 'relative',
                         width: '100%',
-                        'margin-top': '10px',
+                        'margin-top': '5px',
                         'border-radius': '5px',
                         cursor: (isAdmin || isModer) ? 'pointer' : 'default',
                         'background-color': 'rgba(255, 219, 186, 0.6)',
@@ -555,7 +587,7 @@
                       }"
                     >
                       <div class="pinContent">
-                        <v-avatar size="40" style="margin-left: 5px; margin-right: 10px" color="blue">
+                        <v-avatar size="40" color="blue">
                           <v-img
                             :src="authorAvatar"
                             alt="Фото не загружено"
@@ -578,13 +610,14 @@
                           <div v-else >
                             <p>{{ item.user.name }}</p>
                             <p :style="{ 'display': 'inline-block', 'padding-left': '5px', 'padding-right': '5px', 'border-radius': '3px', 'overflow-wrap': 'break-word', 'background-color': item.user.color }">
-                              <a :href="item.msg" target="_blank" @click="addActionWS({ type: 'clickLink', msg: item.msg, })">{{ item.msg }}</a>
+                              <a v-if="item.user.color" :href="item.msg" style="color: white;" target="_blank" @click="addActionWS({ type: 'clickLink', msg: item.msg, })">{{ item.msg }}</a>
+                              <a v-else :href="item.msg" style="color: black;" target="_blank" @click="addActionWS({ type: 'clickLink', msg: item.msg, })">{{ item.msg }}</a>
                             </p>
                           </div>
                         </div>
                       </div>
                       <div class="comment">
-                        {{ comment }}
+                        Сообщение закреплено
                       </div>
                       <div v-if="showContextMenu && activeItem === ('pinToken' + index)" v-click-outside="outsideMenu" class="contextMenu" >
                         <div class="contextMenuContent">
@@ -795,8 +828,6 @@ export default {
       localStorage.setItem("tabState", 'reload')
     }
 
-    console.log("route============>", this.$route)
-
     document.addEventListener('keydown', function(e) {
       if(e.ctrlKey && e.key === 'r') {
         // Ctrl + R pressed
@@ -830,10 +861,9 @@ export default {
     window.onYouTubeIframeAPIReady = function () {
       this.readyYT = true
     }.bind(this)
-    console.log("mount", this.readyYT)
     const routePath = this.$route.path
     isAutowebinar = (routePath.includes('/a/') ? 1 : 0)
-    const isSecret = (routePath.includes('/w/secret/') || routePath.includes('/a/secret/') ? 1 : 0)
+    const isSecret = (routePath.includes('/w/wnn/') || routePath.includes('/a/ann/') ? 1 : 0)
     this.isAutoWebinar = isAutowebinar
     
     if (isSecret == 0 && localStorage.getItem("token")) {
@@ -871,35 +901,55 @@ export default {
           authorName: data.data.userName,
         }
         this.$store.commit('updateRoom', newData);
-        console.log("datadatadta", data.data.status)
         this.status = data.data.status
         this.items = (data.data.chat?.length) ? data.data.chat.map(msg => {
-          return {  msg: msg.msg,
+          return {
+            msg: msg.msg,
             user: JSON.parse(msg.data)}
         }) : []
-
-        console.log(data.data.chat)
-
+        console.log("items", this.items)
+        this.items.sort((a, b) => new Date(a.user.timestamp) - new Date(b.user.timestamp))
+        console.log("item", this.items)
         this.sendLinks = []
         this.items.forEach((item) => {
           if (this.isLink(item.msg)) {
-            const flag = this.sendLinks.find(m => { 
-                              return m.msgLink === item.msg 
-                                && m.colorLink === item.user.color
-                                && m.nameLink === item.user.name })
+            if (item.user.color) {
+              const flag = this.sendLinks.find(m => { 
+                return m.msgLink === item.msg 
+                  && m.colorLink === item.user.color
+                  && m.nameLink === item.user.name })
                                 
-            if (true || !flag) {
-              this.sendLinks.push({
-                msgLink: item.msg,
-                colorLink: item.user.color,
-                nameLink: item.user.name,
-              })
+              if (true || !flag) {
+                this.sendLinks.push({
+                  msgLink: item.msg,
+                  colorLink: item.user.color,
+                  nameLink: item.user.name,
+                })
+              }
             }
           }
         });
-        this.items = this.items.filter((item) => {
-          return (!this.isLink(item.msg))})
+        if (this.sendLinks.length !== 0) {
+          this.isCenterLink = true
+          this.centerLink = {
+            username: this.sendLinks[this.sendLinks.length - 1].nameLink,
+            msg: this.sendLinks[this.sendLinks.length - 1].msgLink,
+            color: this.sendLinks[this.sendLinks.length - 1].colorLink
+          }
+        }
+        // this.items = this.items.filter((item) => {
+        //   return (item.msg)})
         this.comment = data.data.comment
+        this.commentData = data.data.commentData
+        if (this.comment !== '' && this.comment !== null) {
+          var parseData = {
+            id: data.data.id,
+            msg: this.comment,
+            user: JSON.parse(this.commentData)
+          }
+          this.pinItems.pop()
+          this.pinItems.push(parseData)
+        }
         this.dateStart = data.data.dateStart
         this.playbackFrequency = data.data.playbackFrequency
         this.background = this.$config.staticURL + '/' + data.data.backgroundIn
@@ -927,9 +977,9 @@ export default {
         this.isBlockChatBeforeStart = (data.data.blockChatBeforeStart === 'Y') ? true : false
 
         if (!this.status) {
-          if (data.data.blockedChat === 'Y' || (!data.data.blockedChat && data.data.blockChatBeforeStart === 'Y')) {
+          if (data.data.blockedChat === 'Y' || (data.data.blockChatBeforeStart === 'Y')) {
             this.isBlockChat = true
-          } else if (data.data.blockedChat === 'N' || (!data.data.blockedChat && data.data.blockChatBeforeStart === 'N')) {
+          } else if (data.data.blockedChat === 'N' && (data.data.blockChatBeforeStart === 'N')) {
             this.isBlockChat = false
           }
         } else {
@@ -946,22 +996,17 @@ export default {
 
         this.isAdmin = this.user.id === data.data.userId
         this.isModer = data.data?.moderators?.includes(this.user.id)
-        console.log(this.isAdmin)
-        console.log(this.isModer)
         this.duration = (data.data.duration !== null || data.data.duration !== 0) ? data.data.duration : 0  
         this.allowChatLinks = (data.data?.allowChatLinks === 'Y') ? true : false
         this.playback = !this.isAutoWebinar ? data.data.playback : this.playback
         return data.data
       })
-    console.log("webinarData=====>", this.webinarData)
-    console.log(this.webinarData)
     if (this.webinarData === '') {
       window.location.href = 'http://neearby.pro'
     }
     this.webinarData.duration = 3600000;
     if (isAutowebinar && this.webinarData.viewersQuantityStart) {
       this.chatNumber = this.webinarData.viewersQuantityStart;
-      console.log(this.chatNumber)
       
     } 
 
@@ -994,7 +1039,6 @@ export default {
       if (userData?.hideDates) {
         this.hideDates = userData.hideDates
       }
-      console.log(userData)
     } else if (isSecret == 0 && nameGhoste && !nameGhoste.includes('победитель')) {
       auth = {
         type: "ghoste",
@@ -1014,23 +1058,22 @@ export default {
 
     socket.onopen = function () {
       let strLogin = 'User'
-      console.log(strLogin)
       if(localStorage.getItem("login")) strLogin = localStorage.getItem("login")
       else strLogin = localStorage.getItem("nameGhoste")
       
       socket.send(JSON.stringify({
         action: "auth",
         data: {
-              isAutowebinar: isAutowebinar,
-              type: auth.type,
-              authData: auth.data,
-              login: strLogin,
-              chat: String(this.webinarId),
-              device: String(navigator.userAgent?.toLowerCase()),
-              msg: this.comment,
-              room: this.webinarId,
-              timestamp: moment().tz('Europe/Moscow'), // Date.now(),
-            }
+          isAutowebinar: isAutowebinar,
+          type: auth.type,
+          authData: auth.data,
+          login: strLogin,
+          chat: String(this.webinarId),
+          device: String(navigator.userAgent?.toLowerCase()),
+          msg: this.comment,
+          room: this.webinarId,
+          timestamp: moment().tz('Europe/Moscow'), // Date.now(),
+        }
       }))
     };
 
@@ -1038,7 +1081,6 @@ export default {
       const command = JSON.parse(event.data)
 
       if (command.action == "authed") {
-        console.log('authed')
         let users = 1
         if (localStorage.getItem("nameGhoste") && localStorage.getItem("nameGhoste").includes('победитель')) {
           if (command.data.users) {
@@ -1047,32 +1089,28 @@ export default {
           localStorage.setItem("nameGhoste", 'победитель' + users)
         }   
 
-        this.items.sort((a, b) => (b.user.priority || 0) - (a.user.priority || 0))
-
-        if (
-          this.isAdmin
-          && this.comment?.trim()
-          && (
-            !this.items.length || (
-              this.items[0].msg.trim() !== this.comment.trim()
-              || this.items[0].user.auth.id !== this.webinar.userId
-            )
-          )
-        ) {
-          this.socket.send(JSON.stringify({
-            action: "sendZakrepComment",
-            data: {
-              isAutowebinar: isAutowebinar,
-              chat: String(this.webinarId),
-              device: String(navigator.userAgent?.toLowerCase()),
-              msg: this.comment,
-              room: this.webinarId,
-              timestamp: moment().tz('Europe/Moscow'), // Date.now(),
-            }
-          }))
-        }
-
-        this.items.sort((a, b) => (b.user.priority || 0) - (a.user.priority || 0))
+        // if (
+        //   this.isAdmin
+        //   && this.comment?.trim()
+        //   && (
+        //     !this.items.length || (
+        //       this.items[0].msg.trim() !== this.comment.trim()
+        //       || this.items[0].user.auth.id !== this.webinar.userId
+        //     )
+        //   )
+        // ) {
+        //   this.socket.send(JSON.stringify({
+        //     action: "sendZakrepComment",
+        //     data: {
+        //       isAutowebinar: isAutowebinar,
+        //       chat: String(this.webinarId),
+        //       device: String(navigator.userAgent?.toLowerCase()),
+        //       msg: this.comment,
+        //       room: this.webinarId,
+        //       timestamp: moment().tz('Europe/Moscow'), // Date.now(),
+        //     }
+        //   }))
+        // }
         this.$forceUpdate()
         // this.timer()
 
@@ -1114,6 +1152,7 @@ export default {
               'onStateChange': onPlayerStateChange,
               'ended': function() {
                 console.log("end")
+                document.getElementById("screen__overlay").style.display = "none"
                 document.getElementById('screensaverVideo').style.display = 'none';
               },
               'onError': onPlayerError
@@ -1149,6 +1188,7 @@ export default {
               }, 2000)
             }
             if (event.data === 0) {
+              document.getElementById("screen__overlay").style.display = "none"
               document.getElementById('screensaverVideo').style.display = 'none';
             }
           }
@@ -1185,13 +1225,12 @@ export default {
               //     playTime: moment().tz('Europe/Moscow'),
               //   }
               // }))
-              console.log("fdsafsdagsdfgdf", this.status)
               if (this.status) {
                 this.playTime = this.dateStart
                 this.start()
               } else {
                 if (this.isAdmin || this.isModer) {
-                  this.dateStartPole = ""
+                  this.dateStartPole = "Нажмите на кнопку «Начать трансляцию»!"
                 } else {
                   this.dateStartPole = "Ожидание начала эфира от ведущего"
                 }
@@ -1293,7 +1332,7 @@ export default {
                     this.$store.commit('setRoomData', roomData);
                   }
                   if (!this.isAutoWebinar) {
-                    this.dateStartPole = ""
+                    this.dateStartPole = "Нажмите на кнопку «Начать трансляцию»!"
                   } else {
                     this.dateStartPole = "В эфире"
                     this.socket.send(JSON.stringify({
@@ -1341,6 +1380,98 @@ export default {
         }))  
 
       }
+
+      if (command.action == "updateRoom") {
+        const data = command.data.roomData
+        this.webinarData = data
+        this.isActive = data.isActive
+        this.webinarId = data.id
+        this.url = data.url
+        this.userDescription = data.userDescription
+        // this.authorStatus = data.userStatus
+        // this.authorName = data.userName
+        // this.title = data.title
+        const newData = {
+          roomTitle: data.title,
+          authorStatus: data.userStatus,
+          authorName: data.userName,
+        }
+        this.$store.commit('updateRoom', newData);
+        
+        this.comment = data.comment
+        this.commentData = data.commentData
+        if (this.comment !== '' && this.comment !== null) {
+          var parseData = {
+            msg: this.comment,
+            user: JSON.parse(this.commentData)
+          }
+          this.pinItems.pop()
+          this.pinItems.push(parseData)
+        }
+        
+        this.dateStart = data.dateStart
+        this.playbackFrequency = data.playbackFrequency
+        this.background = this.$config.staticURL + '/' + data.backgroundIn
+        this.authorAvatar = this.$config.staticURL + '/' + data.userAvatar
+        this.redirectOut = (data.redirectOut == "") ? "https://neearby.pro" : data.redirectOut
+
+        const banWords = data.banWords?.split('; ')
+
+        if (banWords?.length && banWords[0]) {
+          this.banWords = banWords
+        }
+
+        if (data.backgroundImageInside) {
+          
+          var temp = data.backgroundImageInside.substr(data.backgroundImageInside.length - 5, 1);
+          this.darkMode = temp >= 3 ?  true : false; 
+
+          this.backgroundImage = {
+            'background-image': `url('${this.$config.staticURL + '/' + data.backgroundImageInside}')`,
+          }
+          //  'background-size': '100% auto',
+        }
+
+        this.isBlockChatBeforeStart = (data.blockChatBeforeStart === 'Y') ? true : false
+        if (!this.status) {
+          if (data.blockedChat === 'Y' || (data.blockChatBeforeStart === 'Y')) {
+            this.isBlockChat = true
+          } else if (data.blockedChat === 'N' && (data.blockChatBeforeStart === 'N')) {
+            this.isBlockChat = false
+          }
+        } else {
+          if (data.blockedChat === 'Y') {
+            this.isBlockChat = true
+          } else if (data.blockedChat === 'N') {
+            this.isBlockChat = false
+          }
+        }
+
+        this.notificationSoundAddLink = (data.addLinkNotificationSound === 'Y') ? true : false
+
+        this.links = (data.links) ? data.links : []
+
+        this.isAdmin = this.user.id === data.userId
+        this.isModer = data?.moderators?.includes(this.user.id)
+        console.log(this.isAdmin)
+        console.log(this.isModer)
+        this.duration = (data.duration !== null || data.duration !== 0) ? data.duration : 0  
+        this.allowChatLinks = (data?.allowChatLinks === 'Y') ? true : false
+        this.playback = !this.isAutoWebinar ? data.playback : this.playback
+      }
+
+      if (command.action == "changeInsideBackground") {
+        let value = command.data.background
+        var temp = value.substr(value.length - 5, 1);
+        this.darkMode = temp >= 3 ? true : false;
+        if (this.backgroundImage?.['background-image'] !== `url('${this.$config.staticURL + '/' + value}')`) {
+          this.backgroundImage = {
+            'background-image': `url('${this.$config.staticURL + '/' + value}')`,
+            'background-size': '100% 100%',
+          }
+        }
+        this.$forceUpdate()
+      }
       
       if (command.action == "showScreen") {
         console.log(command.data.msg)
@@ -1357,7 +1488,9 @@ export default {
         this.messageContent = msg.msg
 
         if (command.data.status === 'pin' && this.comment) {
-          this.pinComment = this.comment
+          this.pinComment = 'Сообщение закреплено'
+        } else {
+          this.pinComment = ''
         }
 
         setTimeout(() => {
@@ -1367,7 +1500,17 @@ export default {
       }
 
       if (command.action == "pinMessage") {
-        console.log("pinMessage")
+        // this.items.filter((item) => {
+        //   return item.user.timestamp == command.data.pinMessage.user.timestamp
+        // })
+        this.items = this.items.filter(item => item.user.timestamp !== command.data.pinMessage.user.timestamp);
+        console.log("filter", this.items)
+        if (command.data.pinedMessage.length !== 0) {
+          this.items.push(command.data.pinedMessage[0])
+        }
+
+        this.items.sort((a, b) => new Date(a.user.timestamp) - new Date(b.user.timestamp))
+        
         this.pinItems.pop()
         this.pinItems.push(command.data.pinMessage)
         console.log(this.pinItems)
@@ -1375,6 +1518,8 @@ export default {
 
       if (command.action == "unpinMessage") {
         console.log("unpinMessage")
+        this.items.push(command.data.msg)
+        this.items.sort((a, b) => new Date(a.user.timestamp) - new Date(b.user.timestamp))
         this.pinItems.pop()
         console.log(this.pinItems)
       }
@@ -1387,8 +1532,9 @@ export default {
 
       if (command.action == "message") {
         this.items.push(command.data)
-        this.items.sort((a, b) => (b.user.priority || 0) - (a.user.priority || 0))
+        this.items.sort((a, b) => new Date(a.user.timestamp) - new Date(b.user.timestamp))
         this.$forceUpdate()
+        console.log(command.data)
         if (command.data.user.type !== 'link') {
           this.$nextTick(() => {
             const chating = document.getElementById("chating")
@@ -1397,11 +1543,13 @@ export default {
           
           if (command.data.user.color && command.data.user.color.includes('#') 
               && command.data.msg && this.isLink(command.data.msg) ) {
-            document.getElementById("linkSound").src = this.$config.staticURL + "/linkSound.mp3";
-            document.getElementById("linkSound").play();
+            if (this.notificationSoundAddLink) {
+              document.getElementById("linkSound").src = this.$config.staticURL + "/linkSound.mp3";
+              document.getElementById("linkSound").play();
+            }
             this.isCenterLink = true
             document.getElementById('rightMessage').style.display = 'none'
-            console.log(command.data.user)
+            console.log("centerLink", command.data)
             this.centerLink = {
               username: command.data.user.name,
               msg: command.data.msg,
@@ -1719,6 +1867,7 @@ export default {
       notAllowLinksAlert: false,
       banWordAlert: false,
       comment: '',
+      commentData: '',
       actionsEmitter: new EventEmitter(),
       actions: [],
       darkMode: false,
@@ -1906,17 +2055,17 @@ export default {
       })
     },
     showMenu(id) {
-      if ((this.isAdmin || this.isModer) && this.isActive) {
+      // if ((this.isAdmin || this.isModer) && this.isActive) {
         this.showContextMenu = true;
         this.activeItem = id;
-      }
+      // }
     },
     outsideMenu() {
       this.showContentMenu = false
       this.activeItem = ''
     },
     showScreen(message, status) {
-      if (this.isAdmin || this.isModer) {
+      // if (this.isAdmin || this.isModer) {
         this.showContextMenu = false;
         this.socket.send(JSON.stringify({
           action: "showScreen",
@@ -1927,32 +2076,34 @@ export default {
             status: status,
           }
         }))
-      }
+      // }
     },
     pinMessage(message) {
-      if (this.isAdmin || this.isModer) {
+      // if (this.isAdmin || this.isModer) {
         this.showContextMenu = false;
         this.socket.send(JSON.stringify({
           action: "pinMessage",
           data: {
-            message: message,
+            pinMessage: message,
+            pinedMessage: this.pinItems,
             isAutowebinar: isAutowebinar,
             chat: String(this.webinarId)
           }
         }))
-      }
+      // }
     },
     unpinMessage() {
-      if (this.isAdmin || this.isModer) {
+      // if (this.isAdmin || this.isModer) {
         this.showContextMenu = false;
         this.socket.send(JSON.stringify({
           action: "unpinMessage",
           data: {
             isAutowebinar: isAutowebinar,
-            chat: String(this.webinarId)
+            chat: String(this.webinarId),
+            message: this.pinItems[0],
           }
         }))
-      }
+      // }
     },
     highlightMessage(message) {
       if ((this.isAdmin || this.isModer) && this.isActive) {
@@ -2007,15 +2158,27 @@ export default {
       this.videoPlay = false
     },
     changeInsideBackground(value) {
-      var temp = value.substr(value.length - 5, 1);
-      this.darkMode = temp >= 3 ? true : false;
-      if (this.backgroundImage?.['background-image'] !== `url('${this.$config.staticURL + '/' + value}')`) {
-        this.backgroundImage = {
-          'background-image': `url('${this.$config.staticURL + '/' + value}')`,
-          'background-size': '100% 100%',
+      
+      if (this.isAdmin || this.isModer) {
+        this.socket.send(JSON.stringify({
+          action: "changeInsideBackground",
+          data: {
+            isAutowebinar: isAutowebinar,
+            chat: String(this.webinarId), 
+            background: value
+          }
+        }))
+      } else {
+        var temp = value.substr(value.length - 5, 1);
+        this.darkMode = temp >= 3 ? true : false;
+        if (this.backgroundImage?.['background-image'] !== `url('${this.$config.staticURL + '/' + value}')`) {
+          this.backgroundImage = {
+            'background-image': `url('${this.$config.staticURL + '/' + value}')`,
+            'background-size': '100% 100%',
+          }
         }
+        this.$forceUpdate()
       }
-      this.$forceUpdate()
     },
     dayNightModeMenuToggle(e) {
       e.stopPropagation()
@@ -2683,7 +2846,7 @@ export default {
       this.$store.commit('setWebinarType', isAutowebinar);
       this.$store.commit('setRoomEdit', 1);
 
-      const url = `${window.location.origin}/edit-webinar/1`;
+      const url = `${window.location.origin}/edit-webinar/2`;
       window.open(url, '_blank');
 
       // await this.$router.push(`/edit-webinar/1`)
@@ -2755,12 +2918,16 @@ export default {
 .pinContent {
   display: flex;
   width: 100%;
+  gap: 10px;
+  padding: 5px 5px 0;
 }
 .comment {
   width: 100%;
   display: flex;
   justify-content: flex-end;
   font-size: 10px;
+  padding: 0 5px;
+  color: #FF0000;
 }
 .customLine {
   margin-top: 5px;
@@ -2802,21 +2969,22 @@ export default {
 #rightMessage {
   display: none;
   position: absolute;
-  bottom: 50px;
+  bottom: 30px;
   left: 30%;
   width: 45%;
-  height: 80px;
+  height: auto;
   background: #fff;
   border-radius: 7px;
   border: 1px solid #a39494;
+  flex-direction: column;
   justify-content: flex-start;
   cursor: pointer;
-  padding: 10px 10px 5px;
+  padding: 5px;
+  z-index: 9999;
 }
 
 .messageUserAvatar {
   width: 47px;
-  margin-left: 20px;
   margin-right: 10px;
 }
 
@@ -3071,6 +3239,12 @@ p {
   justify-content: left;
 }
 
+.form__author__custom {
+  display: flex;
+  flex-direction: column;
+  justify-content: left;
+}
+
 .header__content {
   display: flex;
   justify-content: space-between;
@@ -3189,7 +3363,7 @@ p {
 
 .room_action_notification__container {
   position: absolute;
-  bottom: 50px;
+  bottom: 30px;
   left: 30%;
   width: 45%;
   height: 85px;
@@ -3200,6 +3374,7 @@ p {
   justify-content: flex-start;
   align-items: center;
   cursor: pointer;
+  z-index: 9999;
 }
 
 .action_notification__icon {
@@ -3395,7 +3570,7 @@ span {
 .webinar__chat__user {
   display: flex;
   border-radius: 15px;
-  padding: 5px;
+  padding: 10px;
   background: rgba(255, 255, 255, 0.2);
   box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.5);
   color: wheat;

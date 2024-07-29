@@ -886,6 +886,7 @@ export default {
   },
   data() {
     return {
+      socket: null,
       userList: [],
       isMainStr: false,
       editId: 0,
@@ -898,6 +899,7 @@ export default {
       screensaverAudio: '',
       screensaverAudioUrl: '',
       screensaverVideo: '',
+      comment: '',
       webinarData: {
         id: '',
         title: '',
@@ -915,6 +917,7 @@ export default {
         additionalLinkEnterRoom: '',
         dateStart: '',
         comment: '',
+        commentData: '',
         url: '',
         source: '',
         buttonEnteringPage: '',
@@ -976,207 +979,253 @@ export default {
     }
   },
   async mounted() { 
-    var users = await this.$axios.post(
-      `/users/getModeratorList`,
-      ).catch(e => {
-        return false
-      });
-    this.userList = users.data.data
+    if (!localStorage.getItem('token')) {
+      await this.$router.push(`/`)
+    } else {
+      var users = await this.$axios.post(
+        `/users/getModeratorList`,
+        ).catch(e => {
+          return false
+        });
+      this.userList = users.data.data
 
-    this.isAutowebinar = this.$store.state.editWebinarType
-    this.editId = this.$store.state.editWebinarId
-    this.strScriptEditor = this.$store.state.strScriptEditor
-    let data = null
-    if (this.strScriptEditor == 'edit') {
-    	data = this.$store.state.autowebinar
-      this.isAutowebinar = 1
-      this.editId = data.id
-	  } else {
-      const params = {
-        id: this.editId,
-        isAutowebinar: this.isAutowebinar,
-      }
-      data = await this.$axios.$get(
-        `/webinars/1`,
-        {
-          params: params
+      this.isAutowebinar = this.$store.state.editWebinarType
+      this.editId = this.$store.state.editWebinarId
+      this.strScriptEditor = this.$store.state.strScriptEditor
+      let data = null
+      if (this.strScriptEditor == 'edit') {
+        data = this.$store.state.autowebinar
+        this.isAutowebinar = 1
+        this.editId = data.id
+      } else {
+        const params = {
+          id: this.editId,
+          isAutowebinar: this.isAutowebinar,
         }
-      )
-      var moderator = await this.$axios.$post(
-        `/webinars/moderator`,
-        {
-          params: params
-        }
-      )
-      
-      if (moderator.length) {
-        this.moderator = this.userList[this.userList.findIndex(option => option.id === moderator[0].userId)]
-        this.moderatorText = this.moderator.text;
-      } 
-
-      console.log("moderator=====>", this.moderator)
-    }
-
-    for (const [key, value] of Object.entries(data)) {
-      if (Object.hasOwn(this.webinarData, key)) {
-        if(key === 'userId') {
-          if(localStorage.getItem('userId')) {
-            this.webinarData[key] = localStorage.getItem('userId');
-          } else {
-            this.webinarData[key] = value
+        data = await this.$axios.$get(
+          `/webinars/1`,
+          {
+            params: params
           }
-        }
-        if (key === 'links') {
-          if (!value || value.length == undefined || value == null || value.length == 0) continue
-          
-          this.webinarData[key] = []
-          if (typeof value === 'string') {
-            try {
-              const arr = JSON.parse(value)
-              for (let i in arr) {
-                const obj = {
-                  'nameLink': arr[i].nameLink,
-                  'msgLink': arr[i].msgLink,
-                  'colorLink': arr[i].colorLink
-                }
-                this.webinarData[key].push(obj)
-              }
-            } catch (error) {
-              console.log('error', error)         
+        )
+        var moderator = await this.$axios.$post(
+          `/webinars/moderator`,
+          {
+            params: params
+          }
+        )
+        
+        if (moderator.length) {
+          this.moderator = this.userList[this.userList.findIndex(option => option.id === moderator[0].userId)]
+          this.moderatorText = this.moderator.text;
+        } 
+
+        console.log("moderator=====>", this.moderator)
+      }
+
+      for (const [key, value] of Object.entries(data)) {
+        if (Object.hasOwn(this.webinarData, key)) {
+          if(key === 'userId') {
+            if(localStorage.getItem('userId')) {
+              this.webinarData[key] = localStorage.getItem('userId');
+            } else {
+              this.webinarData[key] = value
             }
           }
-          // console.log(typeof this.webinarData[key])
-          // console.log(this.webinarData[key])
-          continue
-        }
-        if (key === 'dateStart') {
-          const dbDate = new Date(value)
-          const dbUtc = dbDate.getTime()
-
-          const date = new Date(dbUtc + 180 * 60000).toISOString().slice(0, 16)
-          this.webinarData[key] = date
-          continue
-        }
-
-        if (key === 'blockChatBeforeStart') {
-          this.webinarData[key] = (value === 'Y') ? true : false
-          continue
-        }
-        if (key === 'addLinkNotificationSound') {
-          this.webinarData[key] = (value === 'Y') ? true : false
-          continue
-        }
-        if (key === 'playback') {
-          this.webinarData[key] = (value === 'Y') ? true : false
-          continue
-        }
-
-        if (key === 'userAvatar') {
-          if (!value || value.length == undefined || value == null || value.length == 0) {
-            this.userAvatarUrl = `/author__photo.png`
-            const res = await fetch('`/author__photo.png`')
-            const blob = await res.blob()
-            this.userAvatar = null
-            this.webinarData[key] = null
-          } else {
-            this.webinarData.userAvatar = this.$config.staticURL + '/' + value
-            this.userAvatarUrl = this.$config.staticURL + '/' + value
-            const avatar = await this.$axios.$get(
-              '/files/photo',
-              {
-                params: {
-                  filename: value,
-                },
-                headers: {
-                  "Authorization": localStorage.getItem('token')
-                },
-                responseType: 'arraybuffer'
+          if (key === 'links') {
+            if (!value || value.length == undefined || value == null || value.length == 0) continue
+            
+            this.webinarData[key] = []
+            if (typeof value === 'string') {
+              try {
+                const arr = JSON.parse(value)
+                for (let i in arr) {
+                  const obj = {
+                    'nameLink': arr[i].nameLink,
+                    'msgLink': arr[i].msgLink,
+                    'colorLink': arr[i].colorLink
+                  }
+                  this.webinarData[key].push(obj)
+                }
+              } catch (error) {
+                console.log('error', error)         
               }
-            )
-
-            const fileAvatar = new File([avatar], value)
-            this.webinarData[key] = fileAvatar
+            }
+            // console.log(typeof this.webinarData[key])
+            // console.log(this.webinarData[key])
+            continue
           }
-          continue
-        }
+          if (key === 'dateStart') {
+            const dbDate = new Date(value)
+            const dbUtc = dbDate.getTime()
 
-        if (key === 'banWords') {
-          if (!value || value.length == undefined || value == null || value.length == 0) continue
-          console.log('123')
-          const banWords = value.split('; ')
-          if (banWords.length && banWords[0]) {
-            this.webinarData.banWords = banWords
-            this.banWordsOn = true
+            const date = new Date(dbUtc + 180 * 60000).toISOString().slice(0, 16)
+            this.webinarData[key] = date
+            continue
           }
-          continue
-        }
 
-        if (key === 'screensaverPhoto' || key === 'screensaverAudio') {
-          if (value) {
-            this.webinarData[`${key}Url`] = this.$config.staticURL + '/' + value
-             const res = this.$axios.$get(
-              '/files/photo',
-              {
-                params: {
-                  filename: value,
-                },
-                headers: {
-                  "Authorization": localStorage.getItem('token')
-                },
-                responseType: 'arraybuffer'
-              }
-            )
+          if (key === 'blockChatBeforeStart') {
+            this.webinarData[key] = (value === 'Y') ? true : false
+            continue
+          }
+          if (key === 'addLinkNotificationSound') {
+            this.webinarData[key] = (value === 'Y') ? true : false
+            continue
+          }
+          if (key === 'playback') {
+            this.webinarData[key] = (value === 'Y') ? true : false
+            continue
+          }
 
-            const screensaverFile = new File([res], value)
-            this.webinarData[key] = screensaverFile
-            if (key === 'screensaverPhoto')
-              this.screensaverPhoto = screensaverFile
-            else if (key === 'screensaverAudio')
-              this.screensaverAudio = screensaverFile
+          if (key === 'userAvatar') {
+            if (!value || value.length == undefined || value == null || value.length == 0) {
+              this.userAvatarUrl = `/author__photo.png`
+              const res = await fetch('`/author__photo.png`')
+              const blob = await res.blob()
+              this.userAvatar = null
+              this.webinarData[key] = null
+            } else {
+              this.webinarData.userAvatar = this.$config.staticURL + '/' + value
+              this.userAvatarUrl = this.$config.staticURL + '/' + value
+              const avatar = await this.$axios.$get(
+                '/files/photo',
+                {
+                  params: {
+                    filename: value,
+                  },
+                  headers: {
+                    "Authorization": localStorage.getItem('token')
+                  },
+                  responseType: 'arraybuffer'
+                }
+              )
+
+              const fileAvatar = new File([avatar], value)
+              this.webinarData[key] = fileAvatar
+            }
+            continue
+          }
+
+          if (key === 'banWords') {
+            if (!value || value.length == undefined || value == null || value.length == 0) continue
+            console.log('123')
+            const banWords = value.split('; ')
+            if (banWords.length && banWords[0]) {
+              this.webinarData.banWords = banWords
+              this.banWordsOn = true
+            }
+            continue
+          }
+
+          if (key === 'screensaverPhoto' || key === 'screensaverAudio') {
+            if (value) {
+              this.webinarData[`${key}Url`] = this.$config.staticURL + '/' + value
+              const res = this.$axios.$get(
+                '/files/photo',
+                {
+                  params: {
+                    filename: value,
+                  },
+                  headers: {
+                    "Authorization": localStorage.getItem('token')
+                  },
+                  responseType: 'arraybuffer'
+                }
+              )
+
+              const screensaverFile = new File([res], value)
+              this.webinarData[key] = screensaverFile
+              if (key === 'screensaverPhoto')
+                this.screensaverPhoto = screensaverFile
+              else if (key === 'screensaverAudio')
+                this.screensaverAudio = screensaverFile
+              continue
+            }
+          }
+
+          if (key === 'screensaverVideo') {
+            if (value === null) {
+              this.screensaverVideo = ''
+            } else {
+              this.screensaverVideo = value
+            }
+          }
+
+          if (key === 'comment') {
+            this.comment = value
+            this.webinarData.comment = value
+          }
+          this.webinarData[key] = value
+        } else {
+          if (key?.startsWith('backgroundImage')) {
+            if (value?.match(/.*background.*/)) {
+              this.backgrounds[key.replace('backgroundImage', '').toLowerCase()].checked = value
+            } else if (value) {
+              this.backgrounds[key.replace('backgroundImage', '').toLowerCase()].checked = 'custom'
+
+              this[`custom${key.replace('backgroundImage', '')}BackgroundUrl`] = this.$config.staticURL + '/' + value
+              const customBackgroudFile = this.$axios.$get(
+                '/files/photo',
+                {
+                  params: {
+                    filename: value,
+                  },
+                  headers: {
+                    "Authorization": localStorage.getItem('token')
+                  },
+                  responseType: 'arraybuffer'
+                }
+              )
+
+              this[`custom${key.replace('backgroundImage', '')}Background`] = new File([customBackgroudFile], value)
+            }
+
             continue
           }
         }
-
-        if (key === 'screensaverVideo') {
-          if (value === null) {
-            this.screensaverVideo = ''
-          } else {
-            this.screensaverVideo = value
-          }
-        }
-        this.webinarData[key] = value
-      } else {
-        if (key?.startsWith('backgroundImage')) {
-          if (value?.match(/.*background.*/)) {
-            this.backgrounds[key.replace('backgroundImage', '').toLowerCase()].checked = value
-          } else if (value) {
-            this.backgrounds[key.replace('backgroundImage', '').toLowerCase()].checked = 'custom'
-
-            this[`custom${key.replace('backgroundImage', '')}BackgroundUrl`] = this.$config.staticURL + '/' + value
-            const customBackgroudFile = this.$axios.$get(
-              '/files/photo',
-              {
-                params: {
-                  filename: value,
-                },
-                headers: {
-                  "Authorization": localStorage.getItem('token')
-                },
-                responseType: 'arraybuffer'
-              }
-            )
-
-            this[`custom${key.replace('backgroundImage', '')}Background`] = new File([customBackgroudFile], value)
-          }
-
-          continue
-        }
       }
-    }
-    console.log(this.webinarData)
-    this.$store.commit('setStrScriptEditor', '');
-    if (this.webinarData.userName.includes('!')) {
-      this.isMainStr = true
+      console.log(this.webinarData)
+      this.$store.commit('setStrScriptEditor', '');
+      if (this.webinarData.userName.includes('!')) {
+        this.isMainStr = true
+      }
+      const routePath = this.$route.path
+      if (routePath.includes('2')) {
+        const socket = new WebSocket(process.env.SOCKET_URL);
+        socket.onopen = function () {
+          let strLogin = 'User'
+          console.log(strLogin)
+          if(localStorage.getItem("login")) strLogin = localStorage.getItem("login")
+          else strLogin = localStorage.getItem("nameGhoste")
+          
+          socket.send(JSON.stringify({
+            action: "auth",
+            data: {
+              isAutowebinar: isAutowebinar,
+              type: auth.type,
+              authData: auth.data,
+              login: strLogin,
+              chat: String(this.webinarId),
+              device: String(navigator.userAgent?.toLowerCase()),
+              msg: this.comment,
+              room: this.webinarId,
+              timestamp: moment().tz('Europe/Moscow'), // Date.now(),
+            }
+          }))
+
+          socket.onmessage = async (event) => {
+            const command = JSON.parse(event.data)
+            
+          }
+        };
+
+        socket.onmessage = async (event) => {
+          const command = JSON.parse(event.data)
+
+        }
+
+        this.socket = socket
+      }
     }
   },
   methods: {
@@ -1361,6 +1410,37 @@ export default {
         this.webinarData.buttonEnteringPage = 'Войти в комнату'
       }
 
+      let auth = {
+        type: "token",
+        data: localStorage.getItem("token")
+      }
+      
+      let strLogin = localStorage.getItem("login")
+      if (this.webinarData.comment !== '' && this.webinarData.comment === this.comment) {
+        this.webinarData.comment = this.webinarData.comment
+        this.webinarData.commentData = this.webinarData.commentData
+      } else if (this.webinarData.comment !== '' && this.webinarData.comment !== this.comment) {
+        var commentData = {
+          type: auth.type,
+          authData: auth.data,
+          login: strLogin,
+          chat: undefined,
+          device: String(navigator.userAgent?.toLowerCase()),
+          timestamp: moment().tz('Europe/Moscow'),
+          auth: {
+            id : localStorage.getItem('userId'),
+            login: strLogin,
+            name: localStorage.getItem('name'),
+            hideDates: "N", 
+          },
+          ip: "::1",
+        }
+        this.webinarData.commentData = JSON.stringify(commentData)
+      } else {
+        this.webinarData.comment = ''
+        this.webinarData.commentData = ''
+      }
+
       try {
         let dateStart = this.webinarData.dateStart
         let data = {
@@ -1400,6 +1480,7 @@ export default {
             'additionalLinkEnterRoom',
             'dateStart',
             'comment',
+            'commentData',
             'url',
             'source',
             'status',
@@ -1438,8 +1519,19 @@ export default {
             }
           })
         console.log("res====>", res)
+        
         const isRoomEdit = this.$store.state.isRoomEdit
         console.log("editRoom", isRoomEdit)
+        this.socket.send(JSON.stringify({
+          action: "updateRoom",
+          data: {
+            isAutowebinar: this.isAutowebinar,
+            chat: String(this.webinarData.id),
+            device: String(navigator.userAgent?.toLowerCase()),
+            roomData: data,
+            timestamp: moment().tz('Europe/Moscow'), // Date.now(),
+          }
+        }))
         if (isRoomEdit) {
           const newData = {
             roomTitle: this.webinarData.title,

@@ -12,7 +12,7 @@
         <div class="titles">
           <span>Вы уверены, что хотите покинуть комнату?</span>
           <div class="modal__button">
-            <a :href="redirect"><button class="modal__button__yes">Да, покинуть</button></a>
+            <button @click="leaveRoom(redirect)" class="modal__button__yes">Да, покинуть</button>
             <button class="modal__button__no" @click="close">Нет, остаться</button>
           </div>
         </div>
@@ -29,6 +29,10 @@ export default {
     closeModal: Function,
   },
   methods: {
+    leaveRoom(link) {
+      this.closeModal()
+      window.location.href = link
+    },
     close() {
       this.closeModal()
     }

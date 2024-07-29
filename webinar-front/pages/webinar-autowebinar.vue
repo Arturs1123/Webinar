@@ -115,7 +115,7 @@
                     </div>
                   </div>
                   <div class="flex justify-space-between flex-row">
-                    <NuxtLink is="a" :to="'/' + (webinar.autowebinar ? 'a' : 'w') + '/secret/'+ webinar.url" :href="'/' + (webinar.autowebinar ? 'a' : 'w') + '/secret/'+ webinar.url" target="_blank">{{ webinar.fullSecretUrl }}</NuxtLink>
+                    <NuxtLink is="a" :to="'/' + (webinar.autowebinar ? 'a/ann/' : 'w/wnn/') + webinar.url" :href="'/' + (webinar.autowebinar ? 'a/ann/' : 'w/wnn/') + webinar.url" target="_blank">{{ webinar.fullSecretUrl }}</NuxtLink>
                     <div  class="hover-text"  style="margin-left: auto; position: relative">
                       <img 
                         src="../static/svg/copy.svg"
@@ -239,7 +239,11 @@ export default {
     }
   },
   async mounted() {
-    await this.getWebinars()
+    if (!localStorage.getItem('token')) {
+      await this.$router.push(`/`)
+    } else {
+      await this.getWebinars()
+    }
   },
   methods: {
     async getWebinars() {
@@ -294,7 +298,7 @@ export default {
             webinar.autowebinar = 0
           }
           webinar.fullUrl = `${location.host}/` + (webinar.autowebinar ? 'a' : 'w') + `/${webinar.url}`
-          webinar.fullSecretUrl = `${location.host}/` + (webinar.autowebinar ? 'a' : 'w') + `/secret/${webinar.url}`
+          webinar.fullSecretUrl = `${location.host}/` + (webinar.autowebinar ? 'a/ann' : 'w/wnn') + `/${webinar.url}`
         })
 
         this.webinars = webinars

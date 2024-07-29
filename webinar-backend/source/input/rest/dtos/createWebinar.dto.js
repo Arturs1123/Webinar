@@ -16,6 +16,7 @@ module.exports = Joi.object({
     additionalLinkEnterRoom: Joi.string().regex(/^(http:\/\/|https:\/\/)/).allow(''),
     dateStart: Joi.string().allow(''),
     comment: Joi.string().allow(''),
+    commentData: Joi.string().allow(''),
     url: Joi.string().required(),
     source: Joi.string().required().regex(/^https:\/\/(www.)*youtube.com/),
     status: Joi.valid(0, 1).default(0),

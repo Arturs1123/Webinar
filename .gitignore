@@ -8,3 +8,4 @@ dist
 *.suo
 *.ntvs*
 *.njsproj
+*/.nuxt/*

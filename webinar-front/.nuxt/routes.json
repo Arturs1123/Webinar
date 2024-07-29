@@ -65,18 +65,18 @@
     "_name": "_6944a8d6"
   },
   {
-    "name": "a-secret-id",
-    "path": "/a/secret/:id?",
-    "component": "E:\\\\Work\\\\webinar\\\\Webinar.20240605\\\\webinar-front\\\\pages\\\\a\\\\secret\\\\_id.vue",
-    "chunkName": "pages/a/secret/_id",
-    "_name": "_e55b0388"
+    "name": "a-ann-id",
+    "path": "/a/ann/:id?",
+    "component": "E:\\\\Work\\\\webinar\\\\Webinar.20240605\\\\webinar-front\\\\pages\\\\a\\\\ann\\\\_id.vue",
+    "chunkName": "pages/a/ann/_id",
+    "_name": "_be48ab92"
   },
   {
-    "name": "w-secret-id",
-    "path": "/w/secret/:id?",
-    "component": "E:\\\\Work\\\\webinar\\\\Webinar.20240605\\\\webinar-front\\\\pages\\\\w\\\\secret\\\\_id.vue",
-    "chunkName": "pages/w/secret/_id",
-    "_name": "_71dbece6"
+    "name": "w-wnn-id",
+    "path": "/w/wnn/:id?",
+    "component": "E:\\\\Work\\\\webinar\\\\Webinar.20240605\\\\webinar-front\\\\pages\\\\w\\\\wnn\\\\_id.vue",
+    "chunkName": "pages/w/wnn/_id",
+    "_name": "_02fb01f7"
   },
   {
     "name": "a-id",

@@ -13,8 +13,8 @@ const _2811fa46 = () => interopDefault(import('..\\pages\\login.vue' /* webpackC
 const _0f1b89e5 = () => interopDefault(import('..\\pages\\preview.vue' /* webpackChunkName: "pages/preview" */))
 const _33cafcc5 = () => interopDefault(import('..\\pages\\test.vue' /* webpackChunkName: "pages/test" */))
 const _6944a8d6 = () => interopDefault(import('..\\pages\\webinar-autowebinar.vue' /* webpackChunkName: "pages/webinar-autowebinar" */))
-const _e55b0388 = () => interopDefault(import('..\\pages\\a\\secret\\_id.vue' /* webpackChunkName: "pages/a/secret/_id" */))
-const _71dbece6 = () => interopDefault(import('..\\pages\\w\\secret\\_id.vue' /* webpackChunkName: "pages/w/secret/_id" */))
+const _be48ab92 = () => interopDefault(import('..\\pages\\a\\ann\\_id.vue' /* webpackChunkName: "pages/a/ann/_id" */))
+const _02fb01f7 = () => interopDefault(import('..\\pages\\w\\wnn\\_id.vue' /* webpackChunkName: "pages/w/wnn/_id" */))
 const _66d40728 = () => interopDefault(import('..\\pages\\a\\_id.vue' /* webpackChunkName: "pages/a/_id" */))
 const _57cb9f60 = () => interopDefault(import('..\\pages\\edit-webinar\\_id.vue' /* webpackChunkName: "pages/edit-webinar/_id" */))
 const _298c2244 = () => interopDefault(import('..\\pages\\s\\_s.vue' /* webpackChunkName: "pages/s/_s" */))
@@ -70,13 +70,13 @@ export const routerOptions = {
     component: _6944a8d6,
     name: "webinar-autowebinar"
   }, {
-    path: "/a/secret/:id?",
-    component: _e55b0388,
-    name: "a-secret-id"
+    path: "/a/ann/:id?",
+    component: _be48ab92,
+    name: "a-ann-id"
   }, {
-    path: "/w/secret/:id?",
-    component: _71dbece6,
-    name: "w-secret-id"
+    path: "/w/wnn/:id?",
+    component: _02fb01f7,
+    name: "w-wnn-id"
   }, {
     path: "/a/:id?",
     component: _66d40728,

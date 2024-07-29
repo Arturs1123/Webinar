@@ -34,7 +34,6 @@ module.exports = class SocketServer {
     }
 
     onConnect(connection, req) {
-        
         const ip = req.headers['x-forwarded-for'] || connection._socket.remoteAddress
         const address = ip + "_" + Math.random()
         this.connections.set(address, {
@@ -45,18 +44,16 @@ module.exports = class SocketServer {
         this.ping(connection)
 
         connection.on('message', async (message) => {
-            console.log("message", message)
+            console.log(message)
             await this.command(address, JSON.parse(message))
         })
 
         connection.on('close', () => {
             this.connections.delete(address)
-
-            console.log('???????????? ??????????');
         })
     }
 
-    async updateRoomInfo() {
+    updateRoomInfo() {
         setInterval(() => {
             for (const roomType in this._rooms) {
                 for (const i in this._rooms[roomType]) {
@@ -97,13 +94,10 @@ module.exports = class SocketServer {
     async command(address, command) {
         const isAutowebinar = command.data.isAutowebinar
         let connect = this.connections.get(address)
-
         if (command.action == "auth") {
-            console.log("auth")
             connect.user = command.data
             this.winner ++
             if (!connect?.user?.type) {
-                console.log('no type')
                 return false
             }
 
@@ -114,10 +108,9 @@ module.exports = class SocketServer {
                         return false
                     })
 
-                console.log("auth", connect.user.auth)
             } else if (connect.user.type == 'ghoste') {
                     // this.winner = 1 + this.winner
-                if (connect.user.login.includes('??????????')) {
+                if (connect.user.login.includes('победитель')) {
                     connect.user.login = connect.user.login + this.winner
                 }
                 connect.user.auth = {
@@ -135,26 +128,18 @@ module.exports = class SocketServer {
                     users: this.winner
                 }
             }))
-
-            console.log(address, "auth")
             return
         }
 
         if (command.action == "join") {
-            console.log("join==========>")
-            console.log(connect.user)
-            console.log(command)
             if (!connect.user) {
                 return
             }
-            console.log("room data =======>", this._rooms)
-            console.log("command ===========>", command)
             if (this._rooms[isAutowebinar].hasOwnProperty(command.data.chat)) {
                 if (!this._rooms[isAutowebinar][command.data.chat].includes(address)) {
                     this._rooms[isAutowebinar][command.data.chat].push(address)
                 }
             } else {
-                console.log("address==========>", [address])
                 this._rooms[isAutowebinar][command.data.chat] = [address]
                 if (isAutowebinar == 1) {
                     const broadcastId = command.data.chat
@@ -175,8 +160,6 @@ module.exports = class SocketServer {
                     } catch (error) {
                         console.log(error)
                     }
-
-                    console.log(res)
 
                     if (res !== null) {
                         const tempData = res[0]
@@ -220,8 +203,7 @@ module.exports = class SocketServer {
                             eventList.push(data)
                         }
                     }
-                    // console.log(timeList)
-                    // console.log(eventList)
+
                     const runTimer = (delay, idx) => {
                         return new Promise((resolve) => {
                             setTimeout(() => {
@@ -258,8 +240,6 @@ module.exports = class SocketServer {
             } else {
                 this._rooms[isAutowebinar][command.data.chat].splice(i, 1);
             }
-
-            console.log(address, "join " + command.data.chat)
             return
         }
 
@@ -280,7 +260,6 @@ module.exports = class SocketServer {
             
         // }
         if (command.action == "send") {
-
             if (this._rooms[isAutowebinar].hasOwnProperty(command.data.chat)) {
                 // if (command.data.chat.indexOf('__') > 0 && webinarAndBroadcast.length === 2) {
                     webinarId = command.data.chat // command.data.chat // webinarAndBroadcast[0]
@@ -324,14 +303,6 @@ module.exports = class SocketServer {
                                         user: data
                                     }
                                 }))
-
-                                console.log("send", {
-                                    action: "message",
-                                    data: {
-                                        msg: command.data.msg,
-                                        user: connect.user
-                                    }
-                                })
 
                             } else {
                             //  this._rooms[command.data.chat].splice(i, 1);
@@ -382,14 +353,6 @@ module.exports = class SocketServer {
                                 user: data
                             }
                         }))
-
-                        console.log("ban", {
-                            action: "banUser",
-                            data: {
-                                msg: command.data.msg,
-                                user: connect.user
-                            }
-                        })
                     }
                 }
             }
@@ -887,7 +850,6 @@ module.exports = class SocketServer {
             if (this._rooms[isAutowebinar].hasOwnProperty(command.data.chat)) {
                 for (let i = 0; i < this._rooms[isAutowebinar][command.data.chat].length; i++) {
                     const address = this._rooms[isAutowebinar][command.data.chat][i]
-                    console.log(address)
                     if (this.connections.has(address)) {
                         const connect = this.connections.get(address)
 
@@ -904,7 +866,7 @@ module.exports = class SocketServer {
                 }
 
                 await this._mysql.execute(`
-                   UPDATE webinar set status = '???????' where id = '${command.data.chat}'
+                   UPDATE webinar set status = 1 where id = ${command.data.chat}
                 `)
 
                 console.log('start stream', command.data.chat)
@@ -929,13 +891,13 @@ module.exports = class SocketServer {
                 }
 
                 await this._mysql.execute(`
-                   UPDATE webinar set status = '????????' where id = '${command.data.chat}'
+                   UPDATE webinar set status = 0 where id = ${command.data.chat}
                 `)
 
                 console.log('finish stream', command.data.chat)
             }
         }
-
+        
         if (command.action == "showScreen") {
             for (let i = 0; i < this._rooms[isAutowebinar][command.data.chat].length; i++) {
                 const address = this._rooms[isAutowebinar][command.data.chat][i]
@@ -962,14 +924,39 @@ module.exports = class SocketServer {
                     connectForSend.connection.send(JSON.stringify({
                         action: "pinMessage",
                         data: {
-                            pinMessage: command.data.message
+                            pinMessage: command.data.pinMessage,
+                            pinedMessage: command.data.pinedMessage,
                         }
                     }))
                 }
             }
+
+            var table = isAutowebinar ? 'broadcast' : 'webinar'
+
+            var currentWebinarId = isAutowebinar ? 'NULL' : command.data.chat;
+            var currentBroadcastId = isAutowebinar ? command.data.chat : 'NULL'
+
+            if (command.data.pinedMessage.length !== 0) {
+                await this._mysql.execute(`
+                    INSERT INTO chat (webinarId, msg, data, broadcastId)
+                    VALUES ("${currentWebinarId}", "${command.data.pinedMessage[0].msg}", '${JSON.stringify(command.data.pinedMessage[0].user)}', ${currentBroadcastId})
+                `)
+            }
+
+            await this._mysql.execute(`
+                DELETE FROM chat 
+                WHERE data = '${JSON.stringify(command.data.pinMessage.user)}'
+            `)
+
+            const res = await this._mysql.execute(`
+                UPDATE ${table} 
+                SET comment = '${command.data.pinMessage.msg}', commentData = '${JSON.stringify(command.data.pinMessage.user)}'
+                WHERE id = ${command.data.chat}
+            `)
         }
 
         if (command.action == "unpinMessage") {
+            console.log(command.data)
             for (let i = 0; i < this._rooms[isAutowebinar][command.data.chat].length; i++) {
                 const address = this._rooms[isAutowebinar][command.data.chat][i]
 
@@ -977,6 +964,66 @@ module.exports = class SocketServer {
                     const connectForSend = this.connections.get(address)
                     connectForSend.connection.send(JSON.stringify({
                         action: "unpinMessage",
+                        data: {
+                            msg: command.data.message,
+                        }
+                    }))
+                }
+            }
+
+            var table = isAutowebinar ? 'broadcast' : 'webinar'
+
+            var currentWebinarId = isAutowebinar ? 'NULL' : command.data.chat;
+            var currentBroadcastId = isAutowebinar ? command.data.chat : 'NULL'
+
+            await this._mysql.execute(`
+                INSERT INTO chat (webinarId, msg, data, broadcastId)
+                VALUES ("${currentWebinarId}", "${command.data.message.msg}", '${JSON.stringify(command.data.message.user)}', ${currentBroadcastId})
+            `)
+
+            const res = await this._mysql.execute(`
+                UPDATE ${table} 
+                SET comment = '', commentData = ''
+                WHERE id = ${command.data.chat}
+            `)
+
+        }
+
+        if (command.action == "changeInsideBackground") {
+            for (let i = 0; i < this._rooms[isAutowebinar][command.data.chat].length; i++) {
+                const address = this._rooms[isAutowebinar][command.data.chat][i]
+
+                if (this.connections.has(address)) {
+                    const connectForSend = this.connections.get(address)
+                    connectForSend.connection.send(JSON.stringify({
+                        action: "changeInsideBackground",
+                        data: {
+                            background: command.data.background
+                        }
+                    }))
+                }
+            }
+            
+            const table = isAutowebinar ? 'broadcast' : 'webinar';
+            const res = await this._mysql.execute(`
+                UPDATE ${table} 
+                SET backgroundImageInside = '${command.data.background}' 
+                WHERE id = ${command.data.chat}
+            `)
+        }
+
+        if (command.action == "updateRoom") {
+            console.log("updateRoom")
+            for (let i = 0; i < this._rooms[isAutowebinar][command.data.chat].length; i++) {
+                const address = this._rooms[isAutowebinar][command.data.chat][i]
+
+                if (this.connections.has(address)) {
+                    const connectForSend = this.connections.get(address)
+                    connectForSend.connection.send(JSON.stringify({
+                        action: "updateRoom",
+                        data: {
+                            roomData: command.data.roomData
+                        }
                     }))
                 }
             }

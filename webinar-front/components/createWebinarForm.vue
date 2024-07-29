@@ -943,6 +943,7 @@ export default {
       additionalLinkEnterRoom: '',
       dateStart: '',
       comment: '',
+      commentData: '',
       url: '',
       source: '',
       banWordsOn: false,
@@ -1006,51 +1007,56 @@ export default {
     }
   },
   async mounted() {
-    var users = await this.$axios.post(
-      `/users/getModeratorList`,
-      ).catch(e => {
-        return false
-      });
-    this.userList = users.data.data
-    this.strScriptEditor = this.$store.state.strScriptEditor
-    if (this.strScriptEditor == 'edit') {
-      const data = this.$store.state.autowebinar
-      
-      if (data != null) {
-        for (const [key, value] of Object.entries(data)) {
-          if (Object.hasOwn(this, key)) {
-            if (key == 'backgrounds') {
-              this.backgrounds.standard.checked = data.backgrounds.standard.checked
-              this.backgrounds.standard.default = data.backgrounds.standard.default
-              this.backgrounds.standard.custom = data.backgrounds.standard.custom
-
-              this.backgrounds.inside.checked = data.backgrounds.inside.checked
-              this.backgrounds.inside.default = data.backgrounds.inside.default
-              this.backgrounds.inside.custom = data.backgrounds.inside.custom
-
-              this.backgrounds.design.checked = data.backgrounds.design.checked
-              this.backgrounds.design.default = data.backgrounds.design.default
-              this.backgrounds.design.custom = data.backgrounds.design.custom
-              
-              continue
-            }
-
-            this[key] = value
-          }
-        }
-        // console.log(this.banWords)
-      }
+    if (!localStorage.getItem('token')) {
+      await this.$router.push(`/`)
     } else {
-      this.userAvatarUrl = `/author__photo.png`
-      const res = await fetch('`/author__photo.png`')
-      const blob = await res.blob()
-      this.userAvatar = null
-      const routePath = this.$route.path
-      this.isAutowebinar = routePath.includes('create-an-autowebinar') 
-      this.playback = this.isAutowebinar ? true : false;
-      this.playbackFrequency = this.isAutowebinar ? '24hour' : ''
+      var users = await this.$axios.post(
+        `/users/getModeratorList`,
+        ).catch(e => {
+          return false
+        });
+      this.userList = users.data.data
+      this.strScriptEditor = this.$store.state.strScriptEditor
+      if (this.strScriptEditor == 'edit') {
+        const data = this.$store.state.autowebinar
+        
+        if (data != null) {
+          for (const [key, value] of Object.entries(data)) {
+            if (Object.hasOwn(this, key)) {
+              if (key == 'backgrounds') {
+                this.backgrounds.standard.checked = data.backgrounds.standard.checked
+                this.backgrounds.standard.default = data.backgrounds.standard.default
+                this.backgrounds.standard.custom = data.backgrounds.standard.custom
+
+                this.backgrounds.inside.checked = data.backgrounds.inside.checked
+                this.backgrounds.inside.default = data.backgrounds.inside.default
+                this.backgrounds.inside.custom = data.backgrounds.inside.custom
+
+                this.backgrounds.design.checked = data.backgrounds.design.checked
+                this.backgrounds.design.default = data.backgrounds.design.default
+                this.backgrounds.design.custom = data.backgrounds.design.custom
+                
+                continue
+              }
+
+              this[key] = value
+            }
+          }
+          // console.log(this.banWords)
+        }
+      } else {
+        this.userAvatarUrl = `/author__photo.png`
+        const res = await fetch('`/author__photo.png`')
+        const blob = await res.blob()
+        this.userAvatar = null
+        const routePath = this.$route.path
+        this.isAutowebinar = routePath.includes('create-an-autowebinar') 
+        this.playback = this.isAutowebinar ? true : false;
+        this.playbackFrequency = this.isAutowebinar ? '24hour' : ''
+      }
+      this.$store.commit('setStrScriptEditor', '');
     }
-    this.$store.commit('setStrScriptEditor', '');
+    
   },
   methods: {
     clearModerator() {
@@ -1227,6 +1233,33 @@ export default {
         this.buttonEnteringPage = 'Войти в комнату'
       } 
 
+      let auth = {
+        type: "token",
+        data: localStorage.getItem("token")
+      }
+      
+      let strLogin = localStorage.getItem("login")
+
+      if (this.comment !== '') {
+        var commentData = {
+          type: auth.type,
+          authData: auth.data,
+          login: strLogin,
+          chat: undefined,
+          device: String(navigator.userAgent?.toLowerCase()),
+          timestamp: moment().tz('Europe/Moscow'),
+          auth: {
+            id : localStorage.getItem('userId'),
+            login: strLogin,
+            name: localStorage.getItem('name'),
+            hideDates: "N", 
+          },
+          ip: "::1",
+        }
+        this.commentData = JSON.stringify(commentData)
+      }
+
+
       try {
         const webinarData = {
           userId: this.userId,
@@ -1244,6 +1277,7 @@ export default {
           buttonEnteringPage: this.buttonEnteringPage,
           dateStart: this.dateStart,
           comment: this.comment,
+          commentData: this.commentData,
           url: this.url,
           source: this.source,
           moderators: this.moderators.map((moder) => moder.trim()),
